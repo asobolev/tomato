@@ -28,3 +28,14 @@
   content: "";
   padding: 0;
 }
+
+
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+
+#rdf_file {
+  width: 100%;
+}
