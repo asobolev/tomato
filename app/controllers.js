@@ -15,28 +15,30 @@ angular.module('controllers', ['services'])
 
     $scope.typesList = [];
 
-    $scope.$on('store.update', function(event, store, graph) {
-        var typeNode = store.rdf.createNamedNode(store.rdf.resolve("rdf:type"));
-        var classes = graph.match(null, typeNode, null);
+    $scope.$on('store.update', function(event, store) {
+        store.graph(function(err, graph){
+            var typeNode = store.rdf.createNamedNode(store.rdf.resolve("rdf:type"));
+            var classes = graph.match(null, typeNode, null);
 
-        var newList = [];
-        for (var i = 0; i < classes.length; i++) {
-            var name = classes.triples[i].object.valueOf();
-            var prefix = 'gnode';
+            var newList = [];
+            for (var i = 0; i < classes.length; i++) {
+                var name = classes.triples[i].object.valueOf();
+                var prefix = 'gnode';
 
-            if (!exist(newList, prefix, name)) {
-                // fetch qty
+                if (!exist(newList, prefix, name)) {
+                    // fetch qty
 
-                newList.push({
-                    prefix: prefix,
-                    name: name,
-                    qty: 0
-                });
+                    newList.push({
+                        prefix: prefix,
+                        name: name,
+                        qty: 0
+                    });
+                }
             }
-        }
 
-        $scope.typesList = newList;
-        $scope.$apply();
+            $scope.typesList = newList;
+            $scope.$apply();
+        });
 
         /*  alternative is to query via SPAQRL:
 
