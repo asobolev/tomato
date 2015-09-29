@@ -36,15 +36,13 @@
     </div>
   </div>
 
-
-
   <!-- CLASSES LIST -->
 
   <div class="col-md-4" ng-controller="TypesList">
     <ul class="list-group" id="triples-list">
         <a href="#" class="list-group-item" ng-repeat="rdfType in typesList">
           <span class="badge">{{ rdfType.qty }}</span>
-          {{ rdfType.name }}
+          {{ rdfType.prefix }}:{{ rdfType.name }}
         </a>
     </ul>
   </div>
