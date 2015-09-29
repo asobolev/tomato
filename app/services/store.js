@@ -1,26 +1,31 @@
-angular.module('services', [])
+angular.module('services')
 
 .factory('store', function ($rootScope) {
 
-    var store = rdfstore.create(function(err, store) {});
+    var storeState = {
+        store: rdfstore.create(function(err, store) {}),
+        prefixes: {}
+    };
 
     var update = function (rdfData) {
 
         function broadcast(err, results) {
-            $rootScope.$broadcast('store.update', store);
+            $rootScope.$broadcast('store.update', storeState);
         }
 
         function loadData() {
-            store.load("text/turtle", rdfData, broadcast);
+            storeState.store.load("text/turtle", rdfData, broadcast);
         }
 
         // FIXME rdfstore-js does not support PREFIX parsing, workaround here
 
         function loadPrefixes(err, triple, prefixes) {
             if (!triple) {
+                storeState.prefixes = prefixes;
+
                 for (var prx in prefixes) {
-                    if (Object.keys(store.rdf.prefixes).indexOf(prx) < 0) {
-                        store.setPrefix(prx, prefixes[prx]);
+                    if (Object.keys(storeState.store.rdf.prefixes).indexOf(prx) < 0) {
+                        storeState.store.setPrefix(prx, prefixes[prx]);
                     }
                 }
 
@@ -34,6 +39,6 @@ angular.module('services', [])
 
     return {
         update: update,
-        store: store
+        store: storeState
     };
 });

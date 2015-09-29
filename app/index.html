@@ -38,20 +38,20 @@
 
   <!-- CLASSES LIST -->
 
-  <div class="col-md-4" ng-controller="TypesList">
+  <div class="col-md-4" ng-controller="TypesPane">
     <ul class="list-group" id="triples-list">
-        <a href="#" class="list-group-item" ng-repeat="rdfType in typesList">
+        <a href="#" class="list-group-item" ng-repeat="rdfType in typesList" ng-click="select(rdfType)">
           <span class="badge">{{ rdfType.qty }}</span>
           {{ rdfType.prefix }}:{{ rdfType.name }}
         </a>
     </ul>
   </div>
 
-  <div class="col-md-4">
+  <div class="col-md-4" ng-controller="QueryPane">
     <div class="input-group" id="query-group">
-      <textarea class="form-control custom-control" rows="5" style="resize:none"></textarea>
-      <textarea class="form-control custom-control" rows="8" style="resize:none"></textarea>
-      <button class="btn btn-default" type="button" id="queryBtn">Execute</button>
+      <textarea class="form-control custom-control" rows="5" style="resize:none">{{ prefixesText }}</textarea>
+      <textarea class="form-control custom-control" rows="8" style="resize:none">{{ bodyText }}</textarea>
+      <button class="btn btn-default" type="button" id="queryBtn" ng-click="execute">Execute</button>
     </div>
   </div>
 
@@ -80,8 +80,11 @@
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
   <script src="app.js"></script>
-  <script src="services.js"></script>
-  <script src="controllers.js"></script>
+  <script src="services/store.js"></script>
+  <script src="services/query.js"></script>
+  <script src="controllers/query.js"></script>
+  <script src="controllers/files.js"></script>
+  <script src="controllers/types.js"></script>
   <script src="components/version/version.js"></script>
   <script src="components/version/version-directive.js"></script>
   <script src="components/version/interpolate-filter.js"></script>
