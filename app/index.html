@@ -27,17 +27,16 @@
 
   <!-- FILE SELECTION -->
 
-  <div ng-controller="FileParser">
+  <div class="col-md-12" ng-controller="FileParser">
     <span class="btn btn-default btn-block">
         <input type="file" id="rdf_file">
     </span>
+    <div class="starter-template">
+      <h2>Tomato: RDF data viewer</h2>
+    </div>
   </div>
 
-  <div class="starter-template">
-    <h1>Bootstrap starter template</h1>
-    <p class="lead">Use this document as a way to quickly start any new project.<br>
-      All you get is this text and a mostly barebones HTML document.</p>
-  </div>
+
 
   <!-- CLASSES LIST -->
 
@@ -50,9 +49,28 @@
     </ul>
   </div>
 
-  <div class="col-md-8">
-    <ul class="list-group" id="foo">
-      <li class="list-group-item">Cras justo odio</li>
+  <div class="col-md-4">
+    <div class="input-group" id="query-group">
+      <textarea class="form-control custom-control" rows="5" style="resize:none"></textarea>
+      <textarea class="form-control custom-control" rows="8" style="resize:none"></textarea>
+      <button class="btn btn-default" type="button" id="queryBtn">Execute</button>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <ul class="list-group" id="history-items">
+      <a href="#" class="list-group-item">
+        <span class="badge">5</span>
+        SELECT DISTINCT * { ?s ?p ?o . }
+      </a>
+      <a href="#" class="list-group-item">
+        <span class="badge">5</span>
+        SELECT DISTINCT * { ?s ?p ?o . }
+      </a>
+      <a href="#" class="list-group-item">
+        <span class="badge">5</span>
+        SELECT DISTINCT * { ?s ?p ?o . }
+      </a>
     </ul>
   </div>
 

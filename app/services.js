@@ -6,10 +6,17 @@ angular.module('services', [])
 
     var update = function (rdfData) {
 
+        function broadcast(err, results) {
+            $rootScope.$broadcast('store.update', store);
+        }
+
+        function loadData() {
+            store.load("text/turtle", rdfData, broadcast);
+        }
+
         // FIXME rdfstore-js does not support PREFIX parsing, workaround here
 
-        var parser = N3.Parser();
-        parser.parse(rdfData, function (err, triple, prefixes) {
+        function loadPrefixes(err, triple, prefixes) {
             if (!triple) {
                 for (var prx in prefixes) {
                     if (Object.keys(store.rdf.prefixes).indexOf(prx) < 0) {
@@ -17,11 +24,12 @@ angular.module('services', [])
                     }
                 }
 
-                store.load("text/turtle", rdfData, function(err, results){
-                    $rootScope.$broadcast('store.update', store);
-                });
+                loadData();
             }
-        });
+        }
+
+        var parser = N3.Parser();
+        parser.parse(rdfData, loadPrefixes);
     };
 
     return {

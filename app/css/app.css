@@ -29,9 +29,13 @@
   padding: 0;
 }
 
+/* ----------------- */
+
+#query-group {
+  display: block;
+}
 
 .starter-template {
-  padding: 40px 15px;
   text-align: center;
 }
 
