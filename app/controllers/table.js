@@ -27,7 +27,11 @@ angular.module('controllers')
                     var record = [];
 
                     for (var j = 0; j < $scope.headers.length; j++) {
-                        record.push(results[i][$scope.headers[j]].value);
+                        if (results[i][$scope.headers[j]]) {
+                            record.push(results[i][$scope.headers[j]].value);
+                        } else {
+                            record.push("");
+                        }
                     }
 
                     data.push(record);

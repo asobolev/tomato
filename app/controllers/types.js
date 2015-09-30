@@ -2,11 +2,12 @@ angular.module('controllers')
 
 .controller('TypesPane', ['$scope', 'store', 'query', function($scope, store, query) {
 
-    function RDFType(prefix, name, qty) {
+    function RDFType(prefix, name, qty, predicates) {
 
         this.prefix = prefix;
         this.name = name;
         this.qty = qty;
+        this.predicates = predicates;
     }
 
     RDFType.prototype.compare = function(rdfType) {
@@ -42,6 +43,11 @@ angular.module('controllers')
         return [prefix, name];
     }
 
+    function shrink(prefixes, URI) {
+        var both = split(prefixes, URI);
+        return both[0] + ":" + both[1];
+    }
+
     $scope.storeState = {};
     $scope.typesList = [];
 
@@ -57,12 +63,30 @@ angular.module('controllers')
 
             var newList = [];
             for (var i = 0; i < classes.length; i++) {
-                var URI = classes.triples[i].object.valueOf();
+                var URI = classes.triples[i].object.valueOf(); // class URI
 
-                var qty = graph.match(null, typeNode, URI).length; // unique?
+                var ids = [];
+                var attrs = [];
+
+                graph.match(null, typeNode, URI).forEach(function(triple) {
+                    ids.push(triple.subject.nominalValue);
+                });
+
+                var objsOfType = graph.filter(function (triple, g) {
+                    return ids.indexOf(triple.subject.nominalValue) > -1;
+                });
+                objsOfType.forEach(function(triple, g){
+                    var predicate = triple.predicate.nominalValue;
+                    if (attrs.indexOf(predicate) < 0 && !(predicate == store.rdf.resolve("rdf:type"))) {
+                        attrs.push(predicate);
+                    }
+                });
+                attrs.forEach(function(elem, i, arr) { arr[i] = shrink(store.rdf.prefixes, elem) });
+
                 var couple = split(store.rdf.prefixes, URI);
+                var qty = ids.length;
 
-                var rdfType = new RDFType(couple[0], couple[1], qty);
+                var rdfType = new RDFType(couple[0], couple[1], qty, attrs);
 
                 if (!exist(newList, rdfType)) {
                     newList.push(rdfType);
@@ -79,15 +103,28 @@ angular.module('controllers')
     });
 
     $scope.select = function(rdfType) {
-        var body = "SELECT DISTINCT ?id \n" +
-            "WHERE {\n" +
-            "\t ?id a " + rdfType.getURI() + " .\n" +
-            "} ORDER BY ?id";
+
+        var select = "SELECT DISTINCT ?id ";
+        var where = "WHERE {\n" + "\t ?id a " + rdfType.getURI() + " .\n";
+        for (var i = 0; i < rdfType.predicates.length; i++) {
+            var varName = "?t" + i;
+
+            var alias = rdfType.predicates[i];
+            if (alias.indexOf(":") > -1) {
+                alias = alias.split(":")[0] + "_" + alias.split(":")[1];
+            }
+            select += "(" + varName + " AS ?" + alias + ") ";
+            where += "\t OPTIONAL { ?id " + rdfType.predicates[i] + " " + varName + " . } \n";
+        }
+        select += "\n";
+        where += "}";
+
+        var body = select + where + " ORDER BY ?id";
 
         query.update($scope.storeState.prefixes, body);
 
 
-        /* ------------------- */
+        /* -------------------
 
 
         var store = $scope.storeState.store;
@@ -147,6 +184,8 @@ angular.module('controllers')
                 // results[0].s -> { token: "uri", value: "http://g-node/ont…" }
             }
         });
+
+         */
     };
 
 }]);

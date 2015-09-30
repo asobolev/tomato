@@ -74,13 +74,13 @@
 
   <div class="col-md-12 separate-block" ng-controller="TablePane">
     <table class="table table-bordered table-hover">
-      <thead><tr ng-repeat="colName in headers">
-        <th>{{ colName }}</th>
+      <thead><tr>
+        <th ng-repeat="colName in headers">{{ colName }}</th>
       </tr></thead>
 
-      <tbody ng-repeat="row in data">
-        <tr ng-repeat="cell in row">
-          <td>{{ cell }}</td>
+      <tbody >
+        <tr ng-repeat="row in data">
+          <td ng-repeat="cell in row track by $index">{{ cell }}</td>
         </tr>
       </tbody>
     </table>
