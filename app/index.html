@@ -72,6 +72,21 @@
     </ul>
   </div>
 
+  <div class="col-md-12 separate-block" ng-controller="TablePane">
+    <table class="table table-bordered table-hover">
+      <thead><tr ng-repeat="colName in headers">
+        <th>{{ colName }}</th>
+      </tr></thead>
+
+      <tbody ng-repeat="row in data">
+        <tr ng-repeat="cell in row">
+          <td>{{ cell }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
   -->
@@ -85,6 +100,7 @@
   <script src="controllers/query.js"></script>
   <script src="controllers/files.js"></script>
   <script src="controllers/types.js"></script>
+  <script src="controllers/table.js"></script>
   <script src="components/version/version.js"></script>
   <script src="components/version/version-directive.js"></script>
   <script src="components/version/interpolate-filter.js"></script>
