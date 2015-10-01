@@ -16,8 +16,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
   <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/main.css">
-  <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/app.css">
 
   <script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
 </head>
@@ -25,7 +25,9 @@
 
 <body>
 
+
   <!-- FILE SELECTION -->
+
 
   <div class="col-md-12" ng-controller="FileParser">
     <span class="btn btn-default btn-block">
@@ -36,21 +38,64 @@
     </div>
   </div>
 
-  <!-- CLASSES LIST -->
+
+  <!-- TYPES PANE -->
+
 
   <div class="col-md-4" ng-controller="TypesPane">
-    <ul class="list-group" id="triples-list">
-        <a href="#" class="list-group-item" ng-repeat="rdfType in typesList" ng-click="select(rdfType)">
-          <span class="badge">{{ rdfType.qty }}</span>
-          {{ rdfType.prefix }}:{{ rdfType.name }}
-        </a>
-    </ul>
+    <div ng-if="items.length == 0">
+      <p>No data loaded. Select the file first.</p>
+    </div>
+
+    <div ng-if="items.length > 0">
+
+      <div class="col-md-6">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Go!</button>
+        </span>
+        <input type="text" ng-model="queryBox.searchText" ng-change="search()" class="form-control" placeholder="Search for...">
+      </div>
+      </div>
+
+      <div class="col-md-6">
+      <ul class="pagination">
+        <li ng-class="{disabled: currentPage == 0}">
+          <a href ng-click="prevPage()">«</a>
+        </li>
+        <li ng-repeat="n in range(pagedItems.length)"
+            ng-class="{active: n == currentPage}"
+            ng-click="setPage()">
+          <a href ng-bind="n + 1">1</a>
+        </li>
+        <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
+          <a href ng-click="nextPage()">»</a>
+        </li>
+      </ul>
+      </div>
+
+      <div class="col-md-12">
+      <ul class="list-group" id="triples-list">
+          <a href="#" class="list-group-item" ng-repeat="rdfType in pagedItems[currentPage] | orderBy:sortingOrder:reverse" ng-click="select(rdfType)">
+            <span class="badge">{{ rdfType.qty }}</span>
+            {{ rdfType.prefix }}:{{ rdfType.name }}
+          </a>
+      </ul>
+      </div>
+
+
+
+    </div>
   </div>
+
+
+  <!-- QUERY PANE -->
+
 
   <div class="col-md-4" ng-controller="QueryPane">
     <div class="input-group" id="query-group">
       <textarea class="form-control custom-control" rows="5" style="resize:none">{{ prefixesText }}</textarea>
-      <textarea class="form-control custom-control" rows="8" style="resize:none">{{ bodyText }}</textarea>
+      <textarea class="form-control custom-control" rows="10" style="resize:none">{{ bodyText }}</textarea>
       <button class="btn btn-default" type="button" id="queryBtn" ng-click="execute">Execute</button>
     </div>
   </div>
