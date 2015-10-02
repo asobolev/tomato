@@ -2,33 +2,6 @@ angular.module('controllers')
 
 .controller('TypesPane', ['$scope', '$filter', 'store', 'query', function($scope, $filter, store, query) {
 
-    function RDFType(prefix, name, qty, predicates) {
-
-        this.prefix = prefix;
-        this.name = name;
-        this.qty = qty;
-        this.predicates = predicates;
-    }
-
-    RDFType.prototype.compare = function(rdfType) {
-        return (rdfType.name === this.name && rdfType.prefix === this.prefix);
-    };
-
-    RDFType.prototype.getURI = function() {
-        return this.prefix + ":" + this.name;
-    };
-
-    function exist(lst, rdfType) {
-        for (var i = 0; i < lst.length; i++) {
-            var obj = lst[i];
-
-            if (obj.compare(rdfType)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     function split(prefixes, URI) {
         var couple = URI.split("#");
         var prefix = couple[0] + "#";
@@ -105,7 +78,7 @@ angular.module('controllers')
 
                 var rdfType = new RDFType(couple[0], couple[1], qty, attrs);
 
-                if (!exist(newList, rdfType)) {
+                if (!rdfType.isMemberOf(newList)) {
                     newList.push(rdfType);
                 }
             }
@@ -121,25 +94,7 @@ angular.module('controllers')
     });
 
     $scope.select = function(rdfType) {
-
-        var select = "SELECT DISTINCT ?id ";
-        var where = "WHERE {\n" + "\t ?id a " + rdfType.getURI() + " .\n";
-        for (var i = 0; i < rdfType.predicates.length; i++) {
-            var varName = "?t" + i;
-
-            var alias = rdfType.predicates[i];
-            if (alias.indexOf(":") > -1) {
-                alias = alias.split(":")[0] + "_" + alias.split(":")[1];
-            }
-            select += "(" + varName + " AS ?" + alias + ") ";
-            where += "\t OPTIONAL { ?id " + rdfType.predicates[i] + " " + varName + " . } \n";
-        }
-        select += "\n";
-        where += "}";
-
-        var body = select + where + " ORDER BY ?id";
-
-        query.update($scope.storeState.prefixes, body);
+        query.update($scope.storeState.prefixes, rdfType.buildSPARQL([]));
     };
 
     $scope.search = function () {
