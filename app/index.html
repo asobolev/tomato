@@ -119,8 +119,16 @@
       </tr></thead>
 
       <tbody >
-        <tr ng-repeat="row in data">
-          <td ng-repeat="cell in row track by $index">{{ cell }}</td>
+        <tr ng-repeat="row in records">
+          <td ng-repeat="cell in row track by $index">
+            {{ cell.value }}
+
+            <div ng-if="cell.objProperties.length > 0">
+              <span class="label label-success" ng-repeat="prop in cell.objProperties" ng-click="selectProperty(cell)">
+                ?{{ prop }}
+              </span>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
