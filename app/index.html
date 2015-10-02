@@ -35,6 +35,7 @@
     </span>
     <div class="starter-template">
       <h2>Tomato: RDF data viewer</h2>
+        <p ng-if="!loaded">No data loaded. Select the file first.</p>
     </div>
   </div>
 
@@ -43,10 +44,6 @@
 
 
   <div class="col-md-4" ng-controller="TypesPane">
-    <div ng-if="items.length == 0">
-      <p>No data loaded. Select the file first.</p>
-    </div>
-
     <div ng-if="items.length > 0">
 
       <div class="col-md-6">
@@ -82,8 +79,6 @@
           </a>
       </ul>
       </div>
-
-
 
     </div>
   </div>
