@@ -1,6 +1,7 @@
 angular.module('controllers')
 
-.controller('TypesPane', ['$scope', '$filter', 'store', 'query', function($scope, $filter, store, query) {
+.controller('TypesPane', ['$scope', '$filter', 'store', 'query', 'types',
+        function($scope, $filter, store, query, types) {
 
     function split(prefixes, URI) {
         var couple = URI.split("#");
@@ -29,7 +30,8 @@ angular.module('controllers')
     };
 
     $scope.storeState = {};
-    $scope.items = [];
+    $scope.typesState = types;
+    $scope.items = types.types;
     $scope.sortingOrder = "id";
     $scope.reverse = false;
     $scope.filteredItems = [];
@@ -40,6 +42,11 @@ angular.module('controllers')
     $scope.queryBox = {
         searchText: ""
     };
+
+    $scope.$on('types.update', function(event, typesState) {
+        $scope.typesState = typesState;
+        $scope.items = typesState.types;
+    });
 
     $scope.$on('store.update', function(event, storeState) {
         //var urisMap = new store.rdf.api.UrisMap();
@@ -87,7 +94,7 @@ angular.module('controllers')
                 return a.name.localeCompare(b.name);
             });
 
-            $scope.items = newList;
+            $scope.typesState.update(newList);
             $scope.search();
             $scope.$apply();
         });
