@@ -6,7 +6,7 @@ angular.module('controllers')
     function TableCell(type, value, objProperties) {
         this.type = type;  // 'uri' or 'literal'
         this.value = value;  // '45.5' or 'http://g-node.org/0.1#BrainRegion:1'
-        this.objProperties = objProperties; // ['gnode:isAboutAnimal', ...]
+        this.objProperties = objProperties; // {'gnode:isAboutAnimal': 'gnode:Preparation', ...}
     }
 
     $scope.storeState = store;
@@ -60,10 +60,6 @@ angular.module('controllers')
                                                 store.rdf.prefixes, resolveType(
                                                     graph, triple.subject.valueOf()));
                                         }
-
-                                        //if (cell.objProperties.indexOf(predURI) < 0) {
-                                        //    cell.objProperties.push(predURI);
-                                        //}
                                     });
                                 }
 
@@ -85,12 +81,13 @@ angular.module('controllers')
     });
 
     $scope.selectProperty = function(tableCell, objProperty) {
-        var store = $scope.storeState.store;
-        var urisMap = new store.rdf.api.UrisMap();
+        var couple = tableCell.objProperties[objProperty].split(":");
+        var rdfType = $scope.typesState.getType(couple[0], couple[1]);
 
-        var predURI = urisMap.resolve(objProperty);
+        var filters = ["?id " + objProperty + " <" + tableCell.value + ">"];
+        var sparql = rdfType.buildSPARQL(filters);
 
-        //$scope.typesState.getType
+        query.update($scope.storeState.prefixes, sparql);
     };
 
     function resolveType(graph, URI) {

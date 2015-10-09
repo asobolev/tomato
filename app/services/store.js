@@ -4,7 +4,7 @@ angular.module('services')
 
     var storeState = {
         store: rdfstore.create(function(err, store) {}),
-        prefixes: {}
+        prefixes: {}  // FIXME remove that, use store.rdf.prefixes
     };
 
     var update = function (rdfData) {

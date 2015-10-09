@@ -5,7 +5,7 @@
  */
 function RDFType(prefix, name, qty, predicates) {
 
-    this.prefix = prefix;
+    this.prefix = prefix;  // short prefix, like "gnode"
     this.name = name;
     this.qty = qty;  // quantity of URIs of that type in actual store
     this.predicates = predicates;  // predicates for that type in actual store
@@ -33,7 +33,7 @@ RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
     var where = "WHERE {\n" + "\t ?id a " + this.getURI() + " .\n";
 
     for (var i = 0; i < filters.length; i++) {
-        where += "\t " + filters[i] + ". } \n";
+        where += "\t " + filters[i] + " . \n";
     }
 
     for (var i = 0; i < this.predicates.length; i++) {
