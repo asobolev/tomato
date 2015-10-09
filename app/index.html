@@ -123,11 +123,10 @@
           <td ng-repeat="cell in row track by $index">
             {{ cell.value }}
 
-            <div ng-if="cell.objProperties.length > 0">
-              <span class="label label-success" ng-repeat="prop in cell.objProperties" ng-click="selectProperty(cell)">
-                ?{{ prop }}
-              </span>
-            </div>
+            <button class="btn btn-primary btn-xs" type="button"
+                    ng-repeat="(prop, type) in cell.objProperties" ng-click="selectProperty(cell, prop)">
+              {{ type }}->{{ prop }}
+            </button>
           </td>
         </tr>
       </tbody>

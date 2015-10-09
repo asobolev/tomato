@@ -1,9 +1,14 @@
+/**
+ * Class that represents an existing RDF type
+ * (e.g. foaf:Person or gnode:Experiment)
+ *
+ */
 function RDFType(prefix, name, qty, predicates) {
 
     this.prefix = prefix;
     this.name = name;
-    this.qty = qty;
-    this.predicates = predicates;
+    this.qty = qty;  // quantity of URIs of that type in actual store
+    this.predicates = predicates;  // predicates for that type in actual store
 }
 
 RDFType.prototype.isMemberOf = function (lst) {
@@ -23,7 +28,7 @@ RDFType.prototype.getURI = function() {
     return this.prefix + ":" + this.name;
 };
 
-RDFType.prototype.buildSPARQL = function(filters) {  // FIXME use SPARQLJS
+RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
     var select = "SELECT DISTINCT ?id ";
     var where = "WHERE {\n" + "\t ?id a " + this.getURI() + " .\n";
 
@@ -45,4 +50,37 @@ RDFType.prototype.buildSPARQL = function(filters) {  // FIXME use SPARQLJS
     where += "}";
 
     return select + where + " ORDER BY ?id";
+};
+
+
+/**
+ * Static class with common utility functions.
+ */
+function TomatoUtils() {}
+
+TomatoUtils.split = function(prefixes, URI) {
+    var couple = URI.split("#");
+    var prefix = couple[0] + "#";
+    var name = couple[1];
+
+    for (var pfx in prefixes) {
+        if (prefixes[pfx] && prefixes[pfx] === prefix) {
+            return [pfx, name]
+        }
+    }
+
+    return [prefix, name];
+};
+
+TomatoUtils.shrink = function(prefixes, URI) {
+    var both = TomatoUtils.split(prefixes, URI);
+    return both[0] + ":" + both[1];
+};
+
+TomatoUtils.resolveType = function(graph, URI) {  // returns URI of the RDF type
+    var typeNode = store.rdf.createNamedNode(store.rdf.resolve("rdf:type"));
+
+    graph.match(URI, typeNode, null).forEach(function(triple) {
+        return triple.object.nominalValue;
+    });
 };

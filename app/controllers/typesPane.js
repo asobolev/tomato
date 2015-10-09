@@ -3,25 +3,6 @@ angular.module('controllers')
 .controller('TypesPane', ['$scope', '$filter', 'store', 'query', 'types',
         function($scope, $filter, store, query, types) {
 
-    function split(prefixes, URI) {
-        var couple = URI.split("#");
-        var prefix = couple[0] + "#";
-        var name = couple[1];
-
-        for (var pfx in prefixes) {
-            if (prefixes[pfx] && prefixes[pfx] === prefix) {
-                return [pfx, name]
-            }
-        }
-
-        return [prefix, name];
-    }
-
-    function shrink(prefixes, URI) {
-        var both = split(prefixes, URI);
-        return both[0] + ":" + both[1];
-    }
-
     var searchMatch = function (haystack, needle) {
         if (!needle) {
             return true;
@@ -78,9 +59,9 @@ angular.module('controllers')
                         attrs.push(predicate);
                     }
                 });
-                attrs.forEach(function(elem, i, arr) { arr[i] = shrink(store.rdf.prefixes, elem) });
+                attrs.forEach(function(elem, i, arr) { arr[i] = TomatoUtils.shrink(store.rdf.prefixes, elem) });
 
-                var couple = split(store.rdf.prefixes, URI);
+                var couple = TomatoUtils.split(store.rdf.prefixes, URI);
                 var qty = ids.length;
 
                 var rdfType = new RDFType(couple[0], couple[1], qty, attrs);

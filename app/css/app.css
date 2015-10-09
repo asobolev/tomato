@@ -50,3 +50,7 @@
 #rdf_file {
   width: 100%;
 }
+
+.btn-xs {
+  margin-right: 5px;
+}

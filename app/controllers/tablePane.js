@@ -4,9 +4,9 @@ angular.module('controllers')
         function($scope, store, query, types) {
 
     function TableCell(type, value, objProperties) {
-        this.type = type;
-        this.value = value;
-        this.objProperties = objProperties;
+        this.type = type;  // 'uri' or 'literal'
+        this.value = value;  // '45.5' or 'http://g-node.org/0.1#BrainRegion:1'
+        this.objProperties = objProperties; // ['gnode:isAboutAnimal', ...]
     }
 
     $scope.storeState = store;
@@ -25,16 +25,6 @@ angular.module('controllers')
     });
 
     $scope.$on('query.update', function(event, query) {
-
-        function resolveType(graph, URI) {  // returns URI of the RDF type
-            var typeNode = store.rdf.createNamedNode(store.rdf.resolve("rdf:type"));
-
-            graph.match(URI, typeNode, null).forEach(function(triple) {
-                return triple.object.nominalValue;
-            });
-        }
-
-
 
         $scope.queryState = query;
         var store = $scope.storeState.store;
@@ -56,23 +46,30 @@ angular.module('controllers')
                             var item = results[i][$scope.headers[j]];
 
                             if (item) {
-                                var cell = new TableCell(item.token, item.value, []);
+                                var cell = new TableCell(item.token, item.value, {});
 
                                 if (item.token == 'uri') {
                                     var rels = graph.match(null, null, item.value);
 
                                     rels.forEach(function(triple, g){
-                                        var predURI = triple.predicate.nominalValue;
+                                        var predURI = TomatoUtils.shrink(store.rdf.prefixes,
+                                            triple.predicate.nominalValue);
 
-                                        if (cell.objProperties.indexOf(predURI) < 0) {
-                                            cell.objProperties.push(predURI);
+                                        if (!(predURI in cell.objProperties)) {
+                                            cell.objProperties[predURI] = TomatoUtils.shrink(
+                                                store.rdf.prefixes, resolveType(
+                                                    graph, triple.subject.valueOf()));
                                         }
+
+                                        //if (cell.objProperties.indexOf(predURI) < 0) {
+                                        //    cell.objProperties.push(predURI);
+                                        //}
                                     });
                                 }
 
                                 record.push(cell);
                             } else {
-                                record.push(new TableCell('literal', "", []));
+                                record.push(new TableCell('literal', "", {}));
                             }
                         }
 
@@ -87,9 +84,24 @@ angular.module('controllers')
         });
     });
 
-    $scope.selectProperty = function(tableCell) {
-        //
+    $scope.selectProperty = function(tableCell, objProperty) {
+        var store = $scope.storeState.store;
+        var urisMap = new store.rdf.api.UrisMap();
+
+        var predURI = urisMap.resolve(objProperty);
+
+        //$scope.typesState.getType
     };
+
+    function resolveType(graph, URI) {
+        var store = $scope.storeState.store;
+
+        return graph.match(
+            store.rdf.createNamedNode(URI),
+            store.rdf.createNamedNode(store.rdf.resolve("rdf:type")),
+            null
+        ).toArray()[0].object.valueOf();
+    }
 }]);
 
 
