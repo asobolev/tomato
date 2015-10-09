@@ -128,10 +128,12 @@
       <tbody >
         <tr ng-repeat="row in records">
           <td ng-repeat="cell in row track by $index">
-            {{ cell.value }}
+            <a href="#" ng-if="cell.type == 'uri'" ng-click="selectURI(cell)">{{ cell.value }}</a>
+            <div ng-if="cell.type != 'uri'">{{ cell.value }}</div>
 
             <button class="btn btn-primary btn-xs" type="button"
-                    ng-repeat="(prop, type) in cell.objProperties" ng-click="selectProperty(cell, prop)">
+                    ng-repeat="(prop, type) in cell.objProperties"
+                    ng-click="selectProperty(cell, prop)">
               {{ type }}->{{ prop }}
             </button>
           </td>

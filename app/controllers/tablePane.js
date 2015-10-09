@@ -99,15 +99,8 @@ angular.module('controllers')
             null
         ).toArray()[0].object.valueOf();
     }
+
+    $scope.selectURI = function(tableCell) {
+        alert(tableCell.value);
+    }
 }]);
-
-
-
-/*
-            var predicate = triple.predicate.nominalValue;
-            if (!(predicate in pairs)) {
-                pairs[predicate] = resolveType(triple.subject.nominalValue);
-            }
-
-        }]);
-*/
