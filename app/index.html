@@ -73,7 +73,10 @@
 
       <div class="col-md-12">
       <ul class="list-group" id="triples-list">
-          <a href="#" class="list-group-item" ng-repeat="rdfType in pagedItems[currentPage] | orderBy:sortingOrder:reverse" ng-click="select(rdfType)">
+          <a href="#" class="list-group-item"
+             ng-repeat="rdfType in pagedItems[currentPage] | orderBy:sortingOrder:reverse"
+             ng-class="{active: rdfType.compare(activeType)}"
+             ng-click="select(rdfType)">
             <span class="badge">{{ rdfType.qty }}</span>
             {{ rdfType.prefix }}:{{ rdfType.name }}
           </a>
@@ -111,6 +114,10 @@
       </a>
     </ul>
   </div>
+
+
+  <!-- TABLE PANE -->
+
 
   <div class="col-md-12 separate-block" ng-controller="TablePane">
     <table class="table table-bordered table-hover">

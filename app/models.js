@@ -21,7 +21,10 @@ RDFType.prototype.isMemberOf = function (lst) {
 };
 
 RDFType.prototype.compare = function(rdfType) {
-    return (rdfType.name === this.name && rdfType.prefix === this.prefix);
+    if (rdfType) {
+        return (rdfType.name === this.name && rdfType.prefix === this.prefix);
+    }
+    return false;
 };
 
 RDFType.prototype.getURI = function() {

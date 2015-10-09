@@ -13,6 +13,7 @@ angular.module('controllers')
     $scope.storeState = {};
     $scope.typesState = types;
     $scope.items = types.types;
+    $scope.activeType = null;
     $scope.sortingOrder = "id";
     $scope.reverse = false;
     $scope.filteredItems = [];
@@ -23,6 +24,42 @@ angular.module('controllers')
     $scope.queryBox = {
         searchText: ""
     };
+
+    /**
+     * Update selected type in the types list, if exists in the Query body
+     */
+    $scope.$on('query.update', function(event, queryState) {
+        function contains(text, options) {
+            for (var i = 0; i < options.length; i++) {
+                if (text.indexOf(options[i]) > -1) {
+                    return options[i];
+                }
+            }
+            return null;
+        }
+
+        function options() {
+            return ["?id a ", "?id rdf:type "];
+        }
+
+        var option = contains(queryState.body, options());
+        if (option) {
+            var begIndex = queryState.body.indexOf(option) + option.length;
+            var rest = queryState.body.slice(begIndex);
+
+            var couple = rest.slice(0, rest.indexOf(".")).replace(/\s+/, "").split(":");
+            var rdfType = $scope.typesState.getType(couple[0], couple[1]);
+
+            if (rdfType) {
+                $scope.activeType = rdfType;
+            } else {
+                $scope.activeType = null;
+            }
+
+        } else {
+            $scope.activeType = null;
+        }
+    });
 
     $scope.$on('types.update', function(event, typesState) {
         $scope.typesState = typesState;

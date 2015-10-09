@@ -90,7 +90,7 @@ angular.module('controllers')
         query.update($scope.storeState.prefixes, sparql);
     };
 
-    function resolveType(graph, URI) {
+    function resolveType(graph, URI) {  // FIXME make a closure, use store to query
         var store = $scope.storeState.store;
 
         return graph.match(
