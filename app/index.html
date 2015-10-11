@@ -30,18 +30,29 @@
 
 
   <div class="col-md-12" ng-controller="FileParser">
-    <span class="btn btn-default btn-block">
-        <input type="file" id="rdf_file">
-    </span>
+      <input id="fileInput" type="file" style="visibility:hidden" />
+
+      <div class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" onclick="document.getElementById('fileInput').click();">Select..</button>
+          </span>
+          <input id="textInput" type="text" class="form-control"
+                 ng-model="location" placeholder="Path to local or remote file location...">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" ng-click="prevPage()">Load</button>
+          </span>
+      </div><!-- /input-group -->
+
     <div class="starter-template">
       <h2>Tomato: RDF data viewer</h2>
-        <p ng-if="!loaded">No data loaded. Select the file first.</p>
+        <p ng-if="!$root.loaded">No data loaded. Select the file first.</p>
     </div>
   </div>
 
 
   <!-- TYPES PANE -->
 
+  <div ng-if="$root.loaded">
 
   <div class="col-md-4" ng-controller="TypesPane">
     <div ng-if="items.length > 0">
@@ -142,12 +153,13 @@
     </table>
   </div>
 
+  </div>
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
   -->
   <script src="../node_modules/rdfstore/dist/rdfstore.js"></script>
-  <script src="../node_modules/rdfstore/node_modules/n3/browser/n3-browser.min.js"></script>
+  <script src="../node_modules/rdfstore/node_modules/n3/browser/n3-browser.js"></script>
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
   <script src="models.js"></script>

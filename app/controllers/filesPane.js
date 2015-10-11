@@ -1,10 +1,10 @@
 angular.module('controllers')
 
-.controller('FileParser', ['$scope', 'store', function($scope, store) {
+.controller('FileParser', ['$scope', '$rootScope', 'store', function($scope, $rootScope, store) {
 
-    $scope.loaded = false;
+    $scope.location = "";
 
-    function handleFileSelect(evt) {
+    $scope.handleFileSelect = function(evt) {
         var files = evt.target.files; // FileList object
 
         for (var i = 0, f; f = files[i]; i++) {
@@ -13,14 +13,17 @@ angular.module('controllers')
             reader.onload = (function(theFile) {
                 return function(e) {
                     store.update(e.target.result);
-
-                    $scope.loaded = true;
+                    
+                    $rootScope.loaded = true;
+                    $rootScope.$apply();
                 };
             })(f);
 
+            $scope.location = f.name;
+            //localStorage.setItem("fileLocation", );
             reader.readAsText(f);
         }
-    }
+    };
 
-    document.getElementById('rdf_file').addEventListener('change', handleFileSelect, false);
+    document.getElementById('fileInput').addEventListener('change', $scope.handleFileSelect, false);
 }]);
