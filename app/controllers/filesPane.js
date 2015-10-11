@@ -13,7 +13,7 @@ angular.module('controllers')
             reader.onload = (function(theFile) {
                 return function(e) {
                     store.update(e.target.result);
-                    
+
                     $rootScope.loaded = true;
                     $rootScope.$apply();
                 };

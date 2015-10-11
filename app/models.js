@@ -34,6 +34,7 @@ RDFType.prototype.getURI = function() {
 RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
     var select = "SELECT DISTINCT ?id ";
     var where = "WHERE {\n" + "\t ?id a " + this.getURI() + " .\n";
+    var aliases = [];
 
     for (var i = 0; i < filters.length; i++) {
         where += "\t " + filters[i] + " . \n";
@@ -44,7 +45,14 @@ RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
 
         var alias = this.predicates[i];
         if (alias.indexOf(":") > -1) {
-            alias = alias.split(":")[0] + "_" + alias.split(":")[1];
+            var parts = alias.split(":");
+            
+            if (aliases.indexOf(parts[1]) > -1) {
+                alias = parts[0] + "_" + parts[1];
+            } else {
+                alias = parts[1];
+                aliases.push(parts[1]);
+            }
         }
         select += "(" + varName + " AS ?" + alias + ") ";
         where += "\t OPTIONAL { ?id " + this.predicates[i] + " " + varName + " . } \n";
