@@ -31,6 +31,26 @@ RDFType.prototype.getURI = function() {
     return this.prefix + ":" + this.name;
 };
 
+/* SPARQL query section */
+
+RDFType.prototype.directRelsQuery = function() {
+    return "SELECT DISTINCT ?pred ?objtype\
+            WHERE {\
+                ?id a " + this.getURI() + " .\
+                ?id ?pred ?obj .\
+                ?obj a ?objtype .\
+            } ORDER BY ?pred";
+};
+
+RDFType.prototype.reverseRelsQuery = function() {
+    return "SELECT DISTINCT ?pred ?objtype\
+            WHERE {\
+                ?id a " + this.getURI() + " .\
+                ?subj ?pred ?id .\
+                ?subj a ?objtype .\
+            } ORDER BY ?pred";
+};
+
 RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
     var select = "SELECT DISTINCT ?id ";
     var where = "WHERE {\n" + "\t ?id a " + this.getURI() + " .\n";
@@ -69,11 +89,13 @@ RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
  * Class that represents an item in the RDF types tree
  *
  */
-function TypeTreeItem(predicate, rdfType) {
+function TypeTreeItem(predicate, rdfType, reverse) {
+
+    var arrow = reverse ? " <- " : " -> ";
 
     this.key = rdfType.getURI();
     this.title = '<span class="badge">' + rdfType.qty + '</span>\t '
-        + (predicate == null ? "" : predicate + " -> ")
+        + (predicate == null ? "" : predicate + arrow)
         + '<b>' + rdfType.getURI() + '</b>';
 
     this.folder = true;

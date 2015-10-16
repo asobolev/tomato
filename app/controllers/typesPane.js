@@ -67,18 +67,10 @@ angular.module('controllers')
 
         var items = [];
         for (var i = 0; i < $scope.items.length; i++) {
-            items.push(new TypeTreeItem(null, $scope.items[i]))
+            items.push(new TypeTreeItem(null, $scope.items[i], false))
         }
 
-        function directRelsQuery(rdfType) {
-            return TomatoUtils.prefixesToString($scope.storeState.prefixes) + "\
-            SELECT DISTINCT ?pred ?objtype\
-            WHERE {\
-                ?id a " + rdfType.getURI() + " .\
-                ?id ?pred ?obj .\
-                ?obj a ?objtype .\
-            } ORDER BY ?pred";
-        }
+        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
 
         $("#typesTree").fancytree({
             source: items,
@@ -98,22 +90,44 @@ angular.module('controllers')
                 data.result = dfd.promise();
 
                 var store = $scope.storeState.store;
-
                 var couple = data.node.key.split(":");
                 var selectedType = $scope.typesState.getType(couple[0], couple[1]);
 
-                store.execute(directRelsQuery(selectedType), function (err, results) {
+                var directQuery = pfxs + selectedType.directRelsQuery();
+                var reverseQuery = pfxs + selectedType.reverseRelsQuery();
+
+                var q1 = new $.Deferred();
+                var q2 = new $.Deferred();
+
+                store.execute(directQuery, function (err, results) {
                         var children = [];
                         for (var i = 0; i < results.length; i++) {
                             var pred = TomatoUtils.shrink(store.rdf.prefixes, results[i]['pred'].value);
                             var both = TomatoUtils.shrink(store.rdf.prefixes, results[i]['objtype'].value).split(":");
                             var currType = $scope.typesState.getType(both[0], both[1]);
 
-                            children.push(new TypeTreeItem(pred, currType));
+                            children.push(new TypeTreeItem(pred, currType, false));
                         }
-                        dfd.resolve(children);
+                        q1.resolve(children);
                     }
                 );
+
+                store.execute(reverseQuery, function (err, results) {
+                        var children = [];
+                        for (var i = 0; i < results.length; i++) {
+                            var pred = TomatoUtils.shrink(store.rdf.prefixes, results[i]['pred'].value);
+                            var both = TomatoUtils.shrink(store.rdf.prefixes, results[i]['objtype'].value).split(":");
+                            var currType = $scope.typesState.getType(both[0], both[1]);
+
+                            children.push(new TypeTreeItem(pred, currType, true));
+                        }
+                        q2.resolve(children);
+                    }
+                );
+
+                $.when(q1, q2).done(function(directRels, reverseRels) {
+                    dfd.resolve(directRels.concat(reverseRels));
+                });
             },
             click: function(event, data) {
                 tt = $.ui.fancytree.getEventTargetType(event.originalEvent);
@@ -121,7 +135,6 @@ angular.module('controllers')
                 if (tt != 'expander') {
                     var couple = data.node.key.split(":");
                     var selectedType = $scope.typesState.getType(couple[0], couple[1]);
-                    var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
 
                     query.update(pfxs, selectedType.buildSPARQL([]));
                 }
