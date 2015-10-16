@@ -11,8 +11,8 @@ angular.module('controllers')
     };
 
     $scope.storeState = {};
-    $scope.typesState = types;
-    $scope.items = types.types;
+    $scope.typesState = types.types;
+    $scope.items = types.types.types;
     $scope.activeType = null;
     $scope.sortingOrder = "id";
     $scope.reverse = false;
@@ -64,6 +64,36 @@ angular.module('controllers')
     $scope.$on('types.update', function(event, typesState) {
         $scope.typesState = typesState;
         $scope.items = typesState.types;
+
+        var curr = {};
+        var items = [];
+        for (var i = 0; i < $scope.items.length; i++) {
+            curr = $scope.items[i];
+
+            items.push(
+                new TypeTreeItem(curr.prefix + ":" + curr.name, curr.prefix + ":" + curr.name, [])
+            )
+        }
+
+        $("#typesTree").fancytree({
+            source: items,
+            checkbox: false,
+            extensions: ["filter"],
+            quicksearch: true,
+            filter: {
+                autoApply: true,  // Re-apply last filter if lazy data is loaded
+                counter: true,  // Show a badge with number of matching child nodes near parent icons
+                fuzzy: false,  // Match single characters in order, e.g. 'fb' will match 'FooBar'
+                hideExpandedCounter: true,  // Hide counter badge, when parent is expanded
+                highlight: true,  // Highlight matches by wrapping inside <mark> tags
+                mode: "dimm"  // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+            },
+            lazyLoad: function(event, data) {
+                var node = data.node;
+
+                data.result = $scope.items;
+            }
+        });
     });
 
     $scope.$on('store.update', function(event, storeState) {
@@ -112,7 +142,7 @@ angular.module('controllers')
                 return a.name.localeCompare(b.name);
             });
 
-            $scope.typesState.update(newList);
+            types.update(newList);
             $scope.search();
             $scope.$apply();
         });
@@ -184,6 +214,28 @@ angular.module('controllers')
 
 
 
+
+// ------- tree
+
+
+/*
+ $('#typesJsTree').jstree({ 'core' : {
+ 'data' : [
+ 'Simple root node',
+ {
+ 'text' : 'Root node 2',
+ 'state' : {
+ 'opened' : true,
+ 'selected' : true
+ },
+ 'children' : [
+ { 'text' : 'Child 1' },
+ 'Child 2'
+ ]
+ }
+ ]
+ } });
+ */
 
 /* -------------------
 

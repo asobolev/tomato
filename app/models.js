@@ -9,6 +9,11 @@ function RDFType(prefix, name, qty, predicates) {
     this.name = name;
     this.qty = qty;  // quantity of URIs of that type in actual store
     this.predicates = predicates;  // predicates for that type in actual store
+
+    // implements fancytree::Node interface
+    this.key = prefix + ":" + name;
+    this.title = prefix + ":" + name;
+    this.children = [];
 }
 
 RDFType.prototype.isMemberOf = function (lst) {
@@ -61,6 +66,31 @@ RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
     where += "}";
 
     return select + where + " ORDER BY ?id";
+};
+
+
+
+/**
+ * Class that represents an item in the RDF types tree
+ *
+ */
+function TypeTreeItem(key, title, children) {
+
+    this.key = key;
+    this.title = title;
+    this.children = children;
+
+    this.folder = true;
+    this.lazy = true;
+}
+
+TypeTreeItem.prototype.isMemberOf = function (lst) {
+    for (var i = 0; i < lst.length; i++) {
+        if (this.compare(lst[i])) {
+            return true;
+        }
+    }
+    return false;
 };
 
 

@@ -90,6 +90,28 @@ angular.module('controllers')
         query.update($scope.storeState.prefixes, sparql);
     };
 
+    $scope.selectURI = function(tableCell) {
+        var store = $scope.storeState.store;
+
+        store.graph(function (err, graph) {
+
+            var typeAsString = TomatoUtils.shrink(
+                $scope.storeState.prefixes, resolveType(
+                    graph, tableCell.value
+            ));
+
+            var couple = typeAsString.split(":");
+            var rdfType = $scope.typesState.getType(couple[0], couple[1]);
+
+            // FIXME add filter for ?id
+            var filters = []; //["FILTER (?id = " + "<" + tableCell.value + ">)"];
+            var sparql = rdfType.buildSPARQL(filters);
+
+            query.update($scope.storeState.prefixes, sparql);
+
+        });
+    };
+
     function resolveType(graph, URI) {  // FIXME make a closure, use store to query
         var store = $scope.storeState.store;
 
@@ -98,9 +120,5 @@ angular.module('controllers')
             store.rdf.createNamedNode(store.rdf.resolve("rdf:type")),
             null
         ).toArray()[0].object.valueOf();
-    }
-
-    $scope.selectURI = function(tableCell) {
-        alert(tableCell.value);
     }
 }]);
