@@ -125,3 +125,14 @@ TomatoUtils.resolveType = function(graph, URI) {  // returns URI of the RDF type
         return triple.object.nominalValue;
     });
 };
+
+TomatoUtils.prefixesToString = function(prefixes) {  // {gnode: 'http://...', ...}
+    var pfxText = "";
+    for (var pfx in prefixes) {
+        if (prefixes[pfx]) {
+            pfxText += "PREFIX " + pfx + ": <" + prefixes[pfx] + ">\n"; // "&#13;&#10;";
+        }
+    }
+
+    return pfxText;
+};

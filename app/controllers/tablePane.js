@@ -87,7 +87,9 @@ angular.module('controllers')
         var filters = ["?id " + objProperty + " <" + tableCell.value + ">"];
         var sparql = rdfType.buildSPARQL(filters);
 
-        query.update($scope.storeState.prefixes, sparql);
+        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
+
+        query.update(pfxs, sparql);
     };
 
     $scope.selectURI = function(tableCell) {

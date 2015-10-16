@@ -6,13 +6,13 @@ angular.module('controllers')
     $scope.prefixesText = "";
     $scope.bodyText = "";
 
-    $scope.$on('query.update', function(event, query) {
-        $scope.query = query;
-        $scope.prefixesText = query.prefixesToString();
-        $scope.bodyText = query.body;
+    $scope.$on('query.update', function(event, queryState) {
+        $scope.query = queryState;
+        $scope.prefixesText = queryState.prefixes;
+        $scope.bodyText = queryState.body;
     });
 
     $scope.execute = function() {
-        // update query state
+        query.update($scope.prefixesText, $scope.bodyText);
     }
 }]);
