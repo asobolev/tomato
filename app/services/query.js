@@ -7,22 +7,11 @@ angular.module('services')
         this.body = body;
     }
 
-    QueryState.prototype.prefixesToString = function() {
-        var pfxText = "";
-        for (var pfx in this.prefixes) {
-            if (this.prefixes[pfx]) {
-                pfxText += "PREFIX " + pfx + ": <" + this.prefixes[pfx] + ">\n"; // "&#13;&#10;";
-            }
-        }
-
-        return pfxText;
-    };
-
     QueryState.prototype.queryToString = function() {
-        return this.prefixesToString() + this.body;
+        return this.prefixes + this.body;
     };
 
-    var query = new QueryState({}, "");
+    var query = new QueryState("", "");
 
     var update = function (prefixes, body) {
 

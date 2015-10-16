@@ -119,7 +119,9 @@ angular.module('controllers')
     });
 
     $scope.select = function(rdfType) {
-        query.update($scope.storeState.prefixes, rdfType.buildSPARQL([]));
+        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
+
+        query.update(pfxs, rdfType.buildSPARQL([]));
     };
 
     $scope.search = function () {
