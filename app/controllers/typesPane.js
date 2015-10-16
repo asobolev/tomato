@@ -65,14 +65,19 @@ angular.module('controllers')
         $scope.typesState = typesState;
         $scope.items = typesState.types;
 
-        var curr = {};
         var items = [];
         for (var i = 0; i < $scope.items.length; i++) {
-            curr = $scope.items[i];
+            items.push(new TypeTreeItem(null, $scope.items[i]))
+        }
 
-            items.push(
-                new TypeTreeItem(curr.prefix + ":" + curr.name, curr.prefix + ":" + curr.name, [])
-            )
+        function directRelsQuery(rdfType) {
+            return TomatoUtils.prefixesToString($scope.storeState.prefixes) + "\
+            SELECT DISTINCT ?pred ?objtype\
+            WHERE {\
+                ?id a " + rdfType.getURI() + " .\
+                ?id ?pred ?obj .\
+                ?obj a ?objtype .\
+            } ORDER BY ?pred";
         }
 
         $("#typesTree").fancytree({
@@ -89,9 +94,46 @@ angular.module('controllers')
                 mode: "dimm"  // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
             },
             lazyLoad: function(event, data) {
-                var node = data.node;
+                var dfd = new $.Deferred();
+                data.result = dfd.promise();
 
-                data.result = $scope.items;
+                var store = $scope.storeState.store;
+
+                var couple = data.node.key.split(":");
+                var selectedType = $scope.typesState.getType(couple[0], couple[1]);
+
+                store.execute(directRelsQuery(selectedType), function (err, results) {
+                        var children = [];
+                        for (var i = 0; i < results.length; i++) {
+                            var pred = TomatoUtils.shrink(store.rdf.prefixes, results[i]['pred'].value);
+                            var both = TomatoUtils.shrink(store.rdf.prefixes, results[i]['objtype'].value).split(":");
+                            var currType = $scope.typesState.getType(both[0], both[1]);
+
+                            children.push(new TypeTreeItem(pred, currType));
+                        }
+                        dfd.resolve(children);
+                    }
+                );
+            },
+            click: function(event, data) {
+                tt = $.ui.fancytree.getEventTargetType(event.originalEvent);
+
+                if (tt != 'expander') {
+                    var couple = data.node.key.split(":");
+                    var selectedType = $scope.typesState.getType(couple[0], couple[1]);
+                    var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
+
+                    query.update(pfxs, selectedType.buildSPARQL([]));
+                }
+            },
+
+            // the way to add css class to li element
+            renderNode: function(event, data) {
+                /*
+                setTimeout(function () {
+                    $(data.node.li).addClass("list-group-item")
+                }, 20);
+                */
             }
         });
     });

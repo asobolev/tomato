@@ -54,3 +54,13 @@
 .btn-xs {
   margin-right: 5px;
 }
+
+
+
+
+span.fancytree-node.typesCustom > span.fancytree-title {
+  min-height: 30px;
+  vertical-align: middle;
+  font-size: 14px;
+  color: #555;
+}

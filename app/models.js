@@ -9,11 +9,6 @@ function RDFType(prefix, name, qty, predicates) {
     this.name = name;
     this.qty = qty;  // quantity of URIs of that type in actual store
     this.predicates = predicates;  // predicates for that type in actual store
-
-    // implements fancytree::Node interface
-    this.key = prefix + ":" + name;
-    this.title = prefix + ":" + name;
-    this.children = [];
 }
 
 RDFType.prototype.isMemberOf = function (lst) {
@@ -74,24 +69,18 @@ RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
  * Class that represents an item in the RDF types tree
  *
  */
-function TypeTreeItem(key, title, children) {
+function TypeTreeItem(predicate, rdfType) {
 
-    this.key = key;
-    this.title = title;
-    this.children = children;
+    this.key = rdfType.getURI();
+    this.title = '<span class="badge">' + rdfType.qty + '</span>\t '
+        + (predicate == null ? "" : predicate + " -> ")
+        + '<b>' + rdfType.getURI() + '</b>';
 
     this.folder = true;
     this.lazy = true;
-}
 
-TypeTreeItem.prototype.isMemberOf = function (lst) {
-    for (var i = 0; i < lst.length; i++) {
-        if (this.compare(lst[i])) {
-            return true;
-        }
-    }
-    return false;
-};
+    this.extraClasses = "typesCustom";
+}
 
 
 /**
@@ -130,7 +119,7 @@ TomatoUtils.prefixesToString = function(prefixes) {  // {gnode: 'http://...', ..
     var pfxText = "";
     for (var pfx in prefixes) {
         if (prefixes[pfx]) {
-            pfxText += "PREFIX " + pfx + ": <" + prefixes[pfx] + ">\n"; // "&#13;&#10;";
+            pfxText += "PREFIX " + pfx + ": <" + prefixes[pfx] + "> \n"; // "&#13;&#10;";
         }
     }
 
