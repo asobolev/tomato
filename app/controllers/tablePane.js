@@ -4,6 +4,7 @@ angular.module('controllers')
         function($scope, store, query, types) {
 
     function TableCell(type, value, objProperties) {
+        this.divUID = Math.random().toString().slice(2);
         this.type = type;  // 'uri' or 'literal'
         this.value = value;  // '45.5' or 'http://g-node.org/0.1#BrainRegion:1'
         this.objProperties = objProperties; // {'gnode:isAboutAnimal': 'gnode:Preparation', ...}

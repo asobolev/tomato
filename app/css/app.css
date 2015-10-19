@@ -55,6 +55,11 @@
   margin-right: 5px;
 }
 
+#typesTree {
+  height: 390px;
+  max-height: 390px;
+  overflow-y: scroll;
+}
 
 
 
@@ -63,4 +68,8 @@ span.fancytree-node.typesCustom > span.fancytree-title {
   vertical-align: middle;
   font-size: 14px;
   color: #555;
+}
+
+ul.fancytree-container {
+  border: none;
 }
