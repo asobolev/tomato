@@ -52,7 +52,7 @@ RDFType.prototype.reverseRelsQuery = function() {
 };
 
 RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
-    var select = "SELECT DISTINCT ?id ";
+    var select = "SELECT DISTINCT (?id AS ?" + this.name + "_id) ";
     var where = "WHERE {\n" + "\t ?id a " + this.getURI() + " .\n";
     var aliases = [];
 
@@ -96,7 +96,7 @@ function TypeTreeItem(predicate, rdfType, reverse) {
     this.key = rdfType.getURI();
     this.title = '<span class="badge">' + rdfType.qty + '</span>\t '
         + (predicate == null ? "" : predicate + arrow)
-        + '<b>' + rdfType.getURI() + '</b>';
+        + rdfType.getURI();
 
     this.folder = true;
     this.lazy = true;

@@ -8,6 +8,10 @@ angular.module('controllers')
         this.type = type;  // 'uri' or 'literal'
         this.value = value;  // '45.5' or 'http://g-node.org/0.1#BrainRegion:1'
         this.objProperties = objProperties; // {'gnode:isAboutAnimal': 'gnode:Preparation', ...}
+
+        this.hasRelations = function() {
+            return Object.keys(this.objProperties).length > 0;
+        }
     }
 
     $scope.storeState = store;

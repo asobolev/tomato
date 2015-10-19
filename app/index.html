@@ -32,22 +32,22 @@
 
 
   <div class="col-md-12" ng-controller="FileParser">
-      <input id="fileInput" type="file" style="visibility:hidden" />
+    <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button" onclick="document.getElementById('fileInput').click();">Select..</button>
+        </span>
+        <input id="textInput" type="text" class="form-control"
+               ng-model="location" placeholder="Path to local or remote file location...">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button" ng-click="prevPage()">Load</button>
+        </span>
+    </div><!-- /input-group -->
 
-      <div class="input-group">
-          <span class="input-group-btn">
-            <button class="btn btn-default" type="button" onclick="document.getElementById('fileInput').click();">Select..</button>
-          </span>
-          <input id="textInput" type="text" class="form-control"
-                 ng-model="location" placeholder="Path to local or remote file location...">
-          <span class="input-group-btn">
-            <button class="btn btn-default" type="button" ng-click="prevPage()">Load</button>
-          </span>
-      </div><!-- /input-group -->
+    <input id="fileInput" type="file" style="visibility:hidden" />
 
-    <div class="starter-template">
+    <div ng-if="!$root.loaded" class="starter-template">
       <h2>Tomato: RDF data viewer</h2>
-        <p ng-if="!$root.loaded">No data loaded. Select the file first.</p>
+        <p>No data loaded. Select the file first.</p>
     </div>
   </div>
 
@@ -146,7 +146,9 @@
   <!-- TABLE PANE -->
 
 
-  <div class="col-md-12 separate-block" ng-controller="TablePane">
+  <div ng-controller="TablePane">
+  <div class="col-md-12 separate-block" ng-if="headers.length > 0">
+
     <table class="table table-bordered table-hover">
       <thead><tr>
         <th ng-repeat="colName in headers">{{ colName }}</th>
@@ -157,8 +159,14 @@
           <td ng-repeat="cell in row track by $index">
 
             <div ng-if="cell.type == 'uri'" class="btn-group dropup">
-              <button type="button" class="btn btn-default" ng-click="selectURI(cell)">{{ cell.value }}</button>
-              <button class="btn btn-default dropdown-toggle" type="button"
+              <button type="button" class="btn btn-default"
+                      ng-click="selectURI(cell)"
+                      title="{{ cell.value }}">
+                {{ cell.value | asShortURI }}
+              </button>
+              <button class="btn btn-default dropdown-toggle"
+                      ng-if="cell.hasRelations()"
+                      type="button"
                       id="{{ cell.divUID }}"
                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="caret"></span>
@@ -171,14 +179,16 @@
               </ul>
             </div>
 
-            <div ng-if="cell.type != 'uri'">{{ cell.value }}</div>
-
-
+            <div ng-if="cell.type != 'uri'"
+                    title="{{ cell.value }}">
+              {{ cell.value | asShortValue }}
+            </div>
 
           </td>
         </tr>
       </tbody>
     </table>
+  </div>
   </div>
 
   </div>
@@ -196,8 +206,9 @@
   <script src="../node_modules/rdfstore/node_modules/n3/browser/n3-browser.js"></script>
   <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 
-  <script src="models.js"></script>
   <script src="app.js"></script>
+  <script src="models.js"></script>
+  <script src="filters.js"></script>
   <script src="services/store.js"></script>
   <script src="services/query.js"></script>
   <script src="services/types.js"></script>

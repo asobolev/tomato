@@ -77,6 +77,7 @@ angular.module('controllers')
             checkbox: false,
             extensions: ["filter"],
             quicksearch: true,
+            icons: false, // Display node icons
             filter: {
                 autoApply: true,  // Re-apply last filter if lazy data is loaded
                 counter: true,  // Show a badge with number of matching child nodes near parent icons
