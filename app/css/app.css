@@ -40,9 +40,9 @@
 }
 
 .separate-block {
-  height: 490px;
-  max-height: 490px;
-  overflow:auto;
+  height: 450px;
+  max-height: 450px;
+  overflow-x: auto;
   padding: 10px 0 10px 0;
 
 }

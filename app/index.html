@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" href="../node_modules/jquery.fancytree/dist/skin-win8/ui.fancytree.min.css">
-  <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
   <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/main.css">
   <link rel="stylesheet" href="css/app.css">
@@ -147,49 +147,88 @@
 
 
   <div ng-controller="TablePane">
-  <div class="col-md-12 separate-block" ng-if="headers.length > 0">
 
-    <table class="table table-bordered table-hover">
-      <thead><tr>
-        <th ng-repeat="colName in headers">{{ colName }}</th>
-      </tr></thead>
+    <!-- Table with data -->
 
-      <tbody>
-        <tr ng-repeat="row in records">
-          <td ng-repeat="cell in row track by $index">
+    <div class="col-md-12 separate-block" ng-if="headers.length > 0">
 
-            <div ng-if="cell.type == 'uri'" class="btn-group dropup">
-              <button type="button" class="btn btn-default"
-                      ng-click="selectURI(cell)"
+      <table class="table table-bordered table-hover">
+        <thead><tr>
+          <th ng-repeat="colName in headers">
+            <div  style="display: flex;">
+            {{ colName }}
+            <a href="#" ng-click="sort_by(colName)">
+              <span class="glyphicon glyphicon-sort" aria-hidden="true"></span>
+            </a>
+            </div>
+          </th>
+        </tr></thead>
+
+        <tbody>
+          <tr ng-repeat="row in pagedItems[currentPage] | orderBy:sortingOrder:reverse">
+            <td ng-repeat="cell in row track by $index">
+
+              <div ng-if="cell.type == 'uri'" class="btn-group dropup">
+                <button type="button" class="btn btn-default"
+                        ng-click="selectURI(cell)"
+                        title="{{ cell.value }}">
+                  {{ cell.value | asShortURI }}
+                </button>
+                <button class="btn btn-default dropdown-toggle"
+                        ng-if="cell.hasRelations()"
+                        type="button"
+                        id="{{ cell.divUID }}"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span class="caret"></span>
+                  <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="{{ cell.divUID }}">
+                  <li ng-repeat="(prop, type) in cell.objProperties">
+                    <a href="#" ng-click="selectProperty(cell, prop)">{{ type }}->{{ prop }}</a>
+                  </li>
+                </ul>
+              </div>
+
+              <div ng-if="cell.type != 'uri'"
                       title="{{ cell.value }}">
-                {{ cell.value | asShortURI }}
-              </button>
-              <button class="btn btn-default dropdown-toggle"
-                      ng-if="cell.hasRelations()"
-                      type="button"
-                      id="{{ cell.divUID }}"
-                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="caret"></span>
-                <span class="sr-only">Toggle Dropdown</span>
-              </button>
-              <ul class="dropdown-menu" aria-labelledby="{{ cell.divUID }}">
-                <li ng-repeat="(prop, type) in cell.objProperties">
-                  <a href="#" ng-click="selectProperty(cell, prop)">{{ type }}->{{ prop }}</a>
-                </li>
-              </ul>
-            </div>
+                {{ cell.value | asShortValue }}
+              </div>
 
-            <div ng-if="cell.type != 'uri'"
-                    title="{{ cell.value }}">
-              {{ cell.value | asShortValue }}
-            </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  </div>
+
+    <!-- Search box -->
+
+    <div class="col-md-6" ng-if="headers.length > 0">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Go!</button>
+        </span>
+        <input type="text" ng-model="queryBox.searchText" ng-change="search()" class="form-control" placeholder="Search for...">
+      </div>
+    </div>
+
+    <!-- Pagination items -->
+
+    <div class="col-md-6" ng-if="headers.length > 0">
+      <ul class="pagination">
+        <li ng-class="{disabled: currentPage == 0}">
+          <a href ng-click="prevPage()">«</a>
+        </li>
+        <li ng-repeat="n in range(pagedItems.length)"
+            ng-class="{active: n == currentPage}"
+            ng-click="setPage()">
+          <a href ng-bind="n + 1">1</a>
+        </li>
+        <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
+          <a href ng-click="nextPage()">»</a>
+        </li>
+      </ul>
+    </div>
 
   </div>
 
@@ -204,7 +243,7 @@
   <script src="../node_modules/jquery.fancytree/dist/jquery.fancytree-all.min.js"></script>
   <script src="../node_modules/rdfstore/dist/rdfstore.js"></script>
   <script src="../node_modules/rdfstore/node_modules/n3/browser/n3-browser.js"></script>
-  <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
   <script src="app.js"></script>
   <script src="models.js"></script>

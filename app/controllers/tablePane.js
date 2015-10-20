@@ -1,7 +1,29 @@
 angular.module('controllers')
 
-.controller('TablePane', ['$scope', 'store', 'query', 'types',
-        function($scope, store, query, types) {
+.controller('TablePane', ['$scope', '$filter', 'store', 'query', 'types',
+        function($scope, $filter, store, query, types) {
+
+    /* shared services (states) */
+
+    $scope.storeState = store;
+    $scope.queryState = query;
+    $scope.typesState = types;
+
+    /* output table data */
+
+    $scope.headers = [];  // like ['id', 'hasNotes', ...]
+    $scope.records = [];  // array of arrays of TableCell objects
+
+    /* table sorting, search and pagination */
+
+    $scope.sortingOrder = "id";
+    $scope.reverse = false;
+    $scope.filteredItems = [];
+    $scope.groupedItems = [];
+    $scope.itemsPerPage = 7;
+    $scope.pagedItems = [];
+    $scope.currentPage = 0;
+    $scope.queryBox = { searchText: "" };
 
     function TableCell(type, value, objProperties) {
         this.divUID = Math.random().toString().slice(2);
@@ -14,12 +36,24 @@ angular.module('controllers')
         }
     }
 
-    $scope.storeState = store;
-    $scope.queryState = query;
-    $scope.typesState = types;
+    function resolveType(graph, URI) {  // FIXME make a closure, use store to query
+        var store = $scope.storeState.store;
 
-    $scope.headers = [];
-    $scope.records = [];
+        return graph.match(
+            store.rdf.createNamedNode(URI),
+            store.rdf.createNamedNode(store.rdf.resolve("rdf:type")),
+            null
+        ).toArray()[0].object.valueOf();
+    }
+
+    function searchMatch(haystack, needle) {
+        if (!needle) {
+            return true;
+        }
+        return haystack.toLowerCase().indexOf(needle.toLowerCase()) !== -1;
+    }
+
+    /* event handlers */
 
     $scope.$on('types.update', function (event, typesState) {
         $scope.typesState = typesState;
@@ -78,12 +112,15 @@ angular.module('controllers')
                     }
 
                     $scope.records = data;
+                    $scope.search();
                     $scope.$apply();
                 });
 
             }
         });
     });
+
+    /* user actions */
 
     $scope.selectProperty = function(tableCell, objProperty) {
         var couple = tableCell.objProperties[objProperty].split(":");
@@ -92,6 +129,7 @@ angular.module('controllers')
         var filters = ["?id " + objProperty + " <" + tableCell.value + ">"];
         var sparql = rdfType.buildSPARQL(filters);
 
+        // FIXME optimize here: typesState.getType, prefixesToString
         var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
 
         query.update(pfxs, sparql);
@@ -121,13 +159,70 @@ angular.module('controllers')
         });
     };
 
-    function resolveType(graph, URI) {  // FIXME make a closure, use store to query
-        var store = $scope.storeState.store;
+    /* table sorting, search and pagination */
 
-        return graph.match(
-            store.rdf.createNamedNode(URI),
-            store.rdf.createNamedNode(store.rdf.resolve("rdf:type")),
-            null
-        ).toArray()[0].object.valueOf();
-    }
+    $scope.search = function () {
+
+        function matchRecord(record) {
+            for (var i = 0; i < record.length; i++) {
+                if (searchMatch(record[i].value, txt)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        var txt = $scope.queryBox.searchText;
+
+        $scope.filteredItems = $filter('filter')($scope.records, matchRecord);
+        $scope.currentPage = 0;
+        $scope.groupToPages();
+    };
+
+    $scope.groupToPages = function () {
+        $scope.pagedItems = [];
+
+        for (var i = 0; i < $scope.filteredItems.length; i++) {
+            if (i % $scope.itemsPerPage === 0) {
+                $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [ $scope.filteredItems[i] ];
+            } else {
+                $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]);
+            }
+        }
+    };
+
+    $scope.range = function (start, end) {
+        var ret = [];
+        if (!end) {
+            end = start;
+            start = 0;
+        }
+        for (var i = start; i < end; i++) {
+            ret.push(i);
+        }
+        return ret;
+    };
+
+    $scope.prevPage = function () {
+        if ($scope.currentPage > 0) {
+            $scope.currentPage--;
+        }
+    };
+
+    $scope.nextPage = function () {
+        if ($scope.currentPage < $scope.pagedItems.length - 1) {
+            $scope.currentPage++;
+        }
+    };
+
+    $scope.setPage = function () {
+        $scope.currentPage = this.n;
+    };
+
+    $scope.sort_by = function(newSortingOrder) {
+        if ($scope.sortingOrder == newSortingOrder)
+            $scope.reverse = !$scope.reverse;
+
+        $scope.sortingOrder = newSortingOrder;
+    };
 }]);
