@@ -17,13 +17,7 @@ angular.module('controllers')
     $scope.sortingOrder = "id";
     $scope.reverse = false;
     $scope.filteredItems = [];
-    $scope.groupedItems = [];
-    $scope.itemsPerPage = 7;
-    $scope.pagedItems = [];
-    $scope.currentPage = 0;
-    $scope.queryBox = {
-        searchText: ""
-    };
+    $scope.queryBox = { searchText: "" };
 
     /**
      * Update selected type in the types list, if exists in the Query body
@@ -216,56 +210,6 @@ angular.module('controllers')
         $scope.filteredItems = $filter('filter')($scope.items, function (rdfType) {
             return searchMatch(rdfType.prefix, txt) || searchMatch(rdfType.name, txt);
         });
-
-        $scope.currentPage = 0;
-        $scope.groupToPages();
-    };
-
-    $scope.groupToPages = function () {
-        $scope.pagedItems = [];
-
-        for (var i = 0; i < $scope.filteredItems.length; i++) {
-            if (i % $scope.itemsPerPage === 0) {
-                $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [ $scope.filteredItems[i] ];
-            } else {
-                $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]);
-            }
-        }
-    };
-
-    $scope.range = function (start, end) {
-        var ret = [];
-        if (!end) {
-            end = start;
-            start = 0;
-        }
-        for (var i = start; i < end; i++) {
-            ret.push(i);
-        }
-        return ret;
-    };
-
-    $scope.prevPage = function () {
-        if ($scope.currentPage > 0) {
-            $scope.currentPage--;
-        }
-    };
-
-    $scope.nextPage = function () {
-        if ($scope.currentPage < $scope.pagedItems.length - 1) {
-            $scope.currentPage++;
-        }
-    };
-
-    $scope.setPage = function () {
-        $scope.currentPage = this.n;
-    };
-
-    $scope.sort_by = function(newSortingOrder) {
-        if ($scope.sortingOrder == newSortingOrder)
-            $scope.reverse = !$scope.reverse;
-
-        $scope.sortingOrder = newSortingOrder;
     };
 }]);
 
