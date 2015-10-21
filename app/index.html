@@ -58,54 +58,7 @@
   <div ng-if="$root.loaded">
 
   <div class="col-md-4" ng-controller="TypesPane">
-
-    <!-- fancytree -->
-
     <div id="typesTree"></div>
-
-    <!--
-    <div ng-if="items.length > 0">
-
-      <div class="col-md-6">
-      <div class="input-group">
-        <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Go!</button>
-        </span>
-        <input type="text" ng-model="queryBox.searchText" ng-change="search()" class="form-control" placeholder="Search for...">
-      </div>
-      </div>
-
-      <div class="col-md-6">
-      <ul class="pagination">
-        <li ng-class="{disabled: currentPage == 0}">
-          <a href ng-click="prevPage()">«</a>
-        </li>
-        <li ng-repeat="n in range(pagedItems.length)"
-            ng-class="{active: n == currentPage}"
-            ng-click="setPage()">
-          <a href ng-bind="n + 1">1</a>
-        </li>
-        <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
-          <a href ng-click="nextPage()">»</a>
-        </li>
-      </ul>
-      </div>
-
-      <div class="col-md-12">
-      <ul class="list-group" id="triples-list">
-          <a href="#" class="list-group-item"
-             ng-repeat="rdfType in pagedItems[currentPage] | orderBy:sortingOrder:reverse"
-             ng-class="{active: rdfType.compare(activeType)}"
-             ng-click="select(rdfType)">
-            <span class="badge">{{ rdfType.qty }}</span>
-            {{ rdfType.prefix }}:{{ rdfType.name }}
-          </a>
-      </ul>
-      </div>
-
-    </div>
-    -->
-
   </div>
 
 
@@ -144,6 +97,7 @@
 
 
   <!-- TABLE PANE -->
+
 
   <div class="col-md-12">
     <hr>

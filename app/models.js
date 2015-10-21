@@ -91,16 +91,15 @@ RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
  */
 function TypeTreeItem(predicate, rdfType, reverse) {
 
-    var arrow = reverse ? " <- " : " -> ";
+    var badge = '<span class="badge">' + rdfType.qty + '</span>\t ';
+    var arrow = '<span class="glyphicon glyphicon-arrow-' + (reverse ? "left" : "right") + '" aria-hidden="true"></span>';
+    var pre = predicate == null ? "" : '<small>' + predicate.split(":")[0] + ':</small>' + predicate.split(":")[1];
+    var post = '<small>' + rdfType.prefix + ':</small>' + rdfType.name;
 
     this.key = rdfType.getURI();
-    this.title = '<span class="badge">' + rdfType.qty + '</span>\t '
-        + (predicate == null ? "" : predicate + arrow)
-        + rdfType.getURI();
-
+    this.title = badge + (pre == "" ? "" : pre + " " + arrow + " ") + post;
     this.folder = true;
     this.lazy = true;
-
     this.extraClasses = "typesCustom";
 }
 
