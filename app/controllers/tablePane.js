@@ -12,11 +12,11 @@ angular.module('controllers')
     /* output table data */
 
     $scope.headers = [];  // like ['id', 'hasNotes', ...]
-    $scope.records = [];  // array of arrays of TableCell objects
+    $scope.records = [];  // array of objects like {id: 'http://...', hasNotes: 'foo', ...}
 
     /* table sorting, search and pagination */
 
-    $scope.sortingOrder = "id";
+    $scope.sortingOrder = "";
     $scope.reverse = false;
     $scope.filteredItems = [];
     $scope.groupedItems = [];
@@ -74,12 +74,13 @@ angular.module('controllers')
 
                     if (results.length > 0) {
                         $scope.headers = Object.keys(results[0]);
+                        $scope.sortingOrder = $scope.headers[0];
                     }
 
                     var data = [];
 
                     for (var i = 0; i < results.length; i++) {
-                        var record = [];
+                        var record = {};
 
                         for (var j = 0; j < $scope.headers.length; j++) {
                             var item = results[i][$scope.headers[j]];
@@ -102,9 +103,9 @@ angular.module('controllers')
                                     });
                                 }
 
-                                record.push(cell);
+                                record[$scope.headers[j]] = cell;
                             } else {
-                                record.push(new TableCell('literal', "", {}));
+                                record[$scope.headers[j]] = new TableCell('literal', "", {});
                             }
                         }
 
@@ -164,8 +165,8 @@ angular.module('controllers')
     $scope.search = function () {
 
         function matchRecord(record) {
-            for (var i = 0; i < record.length; i++) {
-                if (searchMatch(record[i].value, txt)) {
+            for (var key in record) {
+                if (record[key].value && searchMatch(record[key].value, txt)) {
                     return true;
                 }
             }

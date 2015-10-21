@@ -145,8 +145,42 @@
 
   <!-- TABLE PANE -->
 
+  <div class="col-md-12">
+    <hr>
+  </div>
 
   <div ng-controller="TablePane">
+
+    <!-- Search box -->
+
+    <div class="col-md-12" ng-if="headers.length > 0">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Go!</button>
+        </span>
+        <input type="text" ng-model="queryBox.searchText" ng-change="search()" class="form-control" placeholder="Search for...">
+      </div>
+    </div>
+
+    <!-- Pagination items - enable if needed -->
+
+    <!--
+    <div class="col-md-6" ng-if="headers.length > 0">
+      <ul class="pagination">
+        <li ng-class="{disabled: currentPage == 0}">
+          <a href ng-click="prevPage()">«</a>
+        </li>
+        <li ng-repeat="n in range(pagedItems.length)"
+            ng-class="{active: n == currentPage}"
+            ng-click="setPage()">
+          <a href ng-bind="n + 1">1</a>
+        </li>
+        <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
+          <a href ng-click="nextPage()">»</a>
+        </li>
+      </ul>
+    </div>
+    -->
 
     <!-- Table with data -->
 
@@ -165,8 +199,13 @@
         </tr></thead>
 
         <tbody>
-          <tr ng-repeat="row in pagedItems[currentPage] | orderBy:sortingOrder:reverse">
-            <td ng-repeat="cell in row track by $index">
+
+          <!-- paginated version -->
+          <!--
+          <tr ng-repeat="row in pagedItems[currentPage] | orderByColumn:sortingOrder:reverse">
+          -->
+          <tr ng-repeat="row in filteredItems | orderByColumn:sortingOrder:reverse">
+            <td ng-repeat="(key, cell) in row">
 
               <div ng-if="cell.type == 'uri'" class="btn-group dropup">
                 <button type="button" class="btn btn-default"
@@ -198,36 +237,6 @@
           </tr>
         </tbody>
       </table>
-    </div>
-
-
-    <!-- Search box -->
-
-    <div class="col-md-6" ng-if="headers.length > 0">
-      <div class="input-group">
-        <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Go!</button>
-        </span>
-        <input type="text" ng-model="queryBox.searchText" ng-change="search()" class="form-control" placeholder="Search for...">
-      </div>
-    </div>
-
-    <!-- Pagination items -->
-
-    <div class="col-md-6" ng-if="headers.length > 0">
-      <ul class="pagination">
-        <li ng-class="{disabled: currentPage == 0}">
-          <a href ng-click="prevPage()">«</a>
-        </li>
-        <li ng-repeat="n in range(pagedItems.length)"
-            ng-class="{active: n == currentPage}"
-            ng-click="setPage()">
-          <a href ng-bind="n + 1">1</a>
-        </li>
-        <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
-          <a href ng-click="nextPage()">»</a>
-        </li>
-      </ul>
     </div>
 
   </div>
