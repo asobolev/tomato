@@ -63,12 +63,12 @@ angular.module('controllers')
         $scope.storeState = storeState;
     });
 
-    $scope.$on('query.update', function(event, query) {
+    $scope.$on('query.update', function(event, queryState) {
 
-        $scope.queryState = query;
+        $scope.queryState = queryState;
         var store = $scope.storeState.store;
 
-        store.execute(query.queryToString(), function(err, results){
+        store.execute(queryState.queryToString(), function(err, results){
             if(!err) {
                 store.graph(function (err, graph) {
 

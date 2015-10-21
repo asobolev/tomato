@@ -66,14 +66,11 @@
 }
 
 
-
-
-#typesTree {
-  height: 360px;
-  max-height: 360px;
+#typesTree, #history-pane {
+  height: 380px;
+  max-height: 380px;
   overflow-y: scroll;
 }
-
 
 
 span.fancytree-node.typesCustom > span.fancytree-title {

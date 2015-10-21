@@ -77,20 +77,14 @@
   <!-- HISTORY PANE -->
 
 
-  <div class="col-md-4">
-
+  <div class="col-md-4" id="history-pane" ng-controller="HistoryPane">
     <ul class="list-group" id="history-items">
-      <a href="#" class="list-group-item">
-        <span class="badge">5</span>
-        SELECT DISTINCT * { ?s ?p ?o . }
-      </a>
-      <a href="#" class="list-group-item">
-        <span class="badge">5</span>
-        SELECT DISTINCT * { ?s ?p ?o . }
-      </a>
-      <a href="#" class="list-group-item">
-        <span class="badge">5</span>
-        SELECT DISTINCT * { ?s ?p ?o . }
+      <a href="#" class="list-group-item"
+         ng-repeat="item in history"
+         ng-click="select(item)"
+         title="{{ item.body }}">
+        <span class="label label-info">{{ item.timestamp.toLocaleString() }}</span>
+        {{ item.body | limitTo:45 }}
       </a>
     </ul>
   </div>
@@ -214,9 +208,10 @@
   <script src="services/store.js"></script>
   <script src="services/query.js"></script>
   <script src="services/types.js"></script>
-  <script src="controllers/queryPane.js"></script>
   <script src="controllers/filesPane.js"></script>
   <script src="controllers/typesPane.js"></script>
+  <script src="controllers/queryPane.js"></script>
+  <script src="controllers/historyPane.js"></script>
   <script src="controllers/tablePane.js"></script>
   <script src="components/version/version.js"></script>
   <script src="components/version/version-directive.js"></script>

@@ -84,7 +84,6 @@ RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
 };
 
 
-
 /**
  * Class that represents an item in the RDF types tree
  *
