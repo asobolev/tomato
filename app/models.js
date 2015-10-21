@@ -83,6 +83,21 @@ RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
     return select + where + " ORDER BY ?id";
 };
 
+RDFType.listClasses = function() {
+    return "SELECT DISTINCT ?class\
+            WHERE {\
+                ?id a ?class .\
+            } ORDER BY ?class";
+};
+
+RDFType.prototype.listPredicates = function() {
+    return "SELECT DISTINCT ?pred\
+            WHERE {\
+                ?id a " + this.getURI() + " .\
+                ?id ?pred ?val .\
+            } ORDER BY ?pred";
+};
+
 
 /**
  * Class that represents an item in the RDF types tree
@@ -134,6 +149,8 @@ TomatoUtils.resolveType = function(graph, URI) {  // returns URI of the RDF type
         return triple.object.nominalValue;
     });
 };
+
+// FIXME move to storeState
 
 TomatoUtils.prefixesToString = function(prefixes) {  // {gnode: 'http://...', ...}
     var pfxText = "";

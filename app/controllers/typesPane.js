@@ -3,12 +3,24 @@ angular.module('controllers')
 .controller('TypesPane', ['$scope', '$filter', 'store', 'query', 'types',
         function($scope, $filter, store, query, types) {
 
-    var searchMatch = function (haystack, needle) {
+    function searchMatch(haystack, needle) {
         if (!needle) {
             return true;
         }
         return haystack.toLowerCase().indexOf(needle.toLowerCase()) !== -1;
-    };
+    }
+
+    function runSPARQL(queryString, deferred, func) {
+        $scope.storeState.store.execute(queryString, function (err, results) {
+            var items = [];
+
+            results.forEach(function(elem, i, arr) {
+                items.push(func(elem));
+            });
+
+            deferred.resolve(items);
+        });
+    }
 
     $scope.storeState = {};
     $scope.typesState = types.types;
@@ -19,8 +31,10 @@ angular.module('controllers')
     $scope.filteredItems = [];
     $scope.queryBox = { searchText: "" };
 
+    /* event handlers */
+
     /**
-     * Update selected type in the types list, if exists in the Query body
+     * Update selected type in the types list, if exists in the QueryState body
      */
     $scope.$on('query.update', function(event, queryState) {
         function contains(text, options) {
@@ -64,8 +78,6 @@ angular.module('controllers')
             items.push(new TypeTreeItem(null, $scope.items[i], false))
         }
 
-        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
-
         $("#typesTree").fancytree({
             source: items,
             checkbox: false,
@@ -80,63 +92,24 @@ angular.module('controllers')
                 highlight: true,  // Highlight matches by wrapping inside <mark> tags
                 mode: "dimm"  // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
             },
-            lazyLoad: function(event, data) {
-                var dfd = new $.Deferred();
-                data.result = dfd.promise();
 
-                var store = $scope.storeState.store;
+            lazyLoad: function(event, data) {
                 var couple = data.node.key.split(":");
                 var selectedType = $scope.typesState.getType(couple[0], couple[1]);
 
-                var directQuery = pfxs + selectedType.directRelsQuery();
-                var reverseQuery = pfxs + selectedType.reverseRelsQuery();
-
-                var q1 = new $.Deferred();
-                var q2 = new $.Deferred();
-
-                store.execute(directQuery, function (err, results) {
-                        var children = [];
-                        for (var i = 0; i < results.length; i++) {
-                            var pred = TomatoUtils.shrink(store.rdf.prefixes, results[i]['pred'].value);
-                            var both = TomatoUtils.shrink(store.rdf.prefixes, results[i]['objtype'].value).split(":");
-                            var currType = $scope.typesState.getType(both[0], both[1]);
-
-                            children.push(new TypeTreeItem(pred, currType, false));
-                        }
-                        q1.resolve(children);
-                    }
-                );
-
-                store.execute(reverseQuery, function (err, results) {
-                        var children = [];
-                        for (var i = 0; i < results.length; i++) {
-                            var pred = TomatoUtils.shrink(store.rdf.prefixes, results[i]['pred'].value);
-                            var both = TomatoUtils.shrink(store.rdf.prefixes, results[i]['objtype'].value).split(":");
-                            var currType = $scope.typesState.getType(both[0], both[1]);
-
-                            children.push(new TypeTreeItem(pred, currType, true));
-                        }
-                        q2.resolve(children);
-                    }
-                );
-
-                $.when(q1, q2).done(function(directRels, reverseRels) {
-                    dfd.resolve(directRels.concat(reverseRels));
-                });
+                data.result = $scope.expand(selectedType);
             },
+
             click: function(event, data) {
-                tt = $.ui.fancytree.getEventTargetType(event.originalEvent);
+                var tt = $.ui.fancytree.getEventTargetType(event.originalEvent);
 
                 if (tt != 'expander') {
                     var couple = data.node.key.split(":");
-                    var selectedType = $scope.typesState.getType(couple[0], couple[1]);
-
-                    query.update(pfxs, selectedType.buildSPARQL([]));
+                    $scope.select($scope.typesState.getType(couple[0], couple[1]));
                 }
             },
 
-            // the way to add css class to li element
-            renderNode: function(event, data) {
+            renderNode: function(event, data) { // the way to add css class to li element
                 /*
                 setTimeout(function () {
                     $(data.node.li).addClass("list-group-item")
@@ -147,62 +120,26 @@ angular.module('controllers')
     });
 
     $scope.$on('store.update', function(event, storeState) {
-        //var urisMap = new store.rdf.api.UrisMap();
-
         $scope.storeState = storeState;
+
         var store = storeState.store;
+        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
 
-        store.graph(function(err, graph){
-            var typeNode = store.rdf.createNamedNode(store.rdf.resolve("rdf:type"));
-            var classes = graph.match(null, typeNode, null);
-
-            var newList = [];
-            for (var i = 0; i < classes.length; i++) {
-                var URI = classes.triples[i].object.valueOf(); // class URI
-
-                var ids = [];
-                var attrs = [];
-
-                graph.match(null, typeNode, URI).forEach(function(triple) {
-                    ids.push(triple.subject.nominalValue);
-                });
-
-                var objsOfType = graph.filter(function (triple, g) {
-                    return ids.indexOf(triple.subject.nominalValue) > -1;
-                });
-                objsOfType.forEach(function(triple, g){
-                    var predicate = triple.predicate.nominalValue;
-                    if (attrs.indexOf(predicate) < 0 && !(predicate == store.rdf.resolve("rdf:type"))) {
-                        attrs.push(predicate);
-                    }
-                });
-                attrs.forEach(function(elem, i, arr) { arr[i] = TomatoUtils.shrink(store.rdf.prefixes, elem) });
-
-                var couple = TomatoUtils.split(store.rdf.prefixes, URI);
-                var qty = ids.length;
-
-                var rdfType = new RDFType(couple[0], couple[1], qty, attrs);
-
-                if (!rdfType.isMemberOf(newList)) {
-                    newList.push(rdfType);
-                }
-            }
-
-            newList.sort(function(a, b) {
-                return a.name.localeCompare(b.name);
-            });
-
-            types.update(newList);
+        var listClasses = new $.Deferred();
+        listClasses.done(function(value) {
+            types.update(value);
             $scope.search();
             $scope.$apply();
         });
+
+        runSPARQL(pfxs + RDFType.listClasses(), listClasses, function(item) {
+            var parts = TomatoUtils.shrink(store.rdf.prefixes, item['class'].value).split(":");
+
+            return new RDFType(parts[0], parts[1], 0, []);
+        });
     });
 
-    $scope.select = function(rdfType) {
-        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
-
-        query.update(pfxs, rdfType.buildSPARQL([]));
-    };
+    /* user actions */
 
     $scope.search = function () {
         var txt = $scope.queryBox.searchText;
@@ -211,6 +148,54 @@ angular.module('controllers')
             return searchMatch(rdfType.prefix, txt) || searchMatch(rdfType.name, txt);
         });
     };
+
+    $scope.select = function (rdfType) {
+        var store = $scope.storeState.store;
+        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
+
+        var listPredicates = new $.Deferred();
+
+        listPredicates.done(function(value) {
+            rdfType.predicates = value;
+
+            query.update(pfxs, rdfType.buildSPARQL([]));
+        });
+
+        runSPARQL(pfxs + rdfType.listPredicates(), listPredicates, function(item) {
+            return TomatoUtils.shrink(store.rdf.prefixes, item['pred'].value);
+        });
+    };
+
+    $scope.expand = function (rdfType) {
+        var dfd = new $.Deferred();
+        var store = $scope.storeState.store;
+        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
+
+        var q1 = new $.Deferred();
+        var q2 = new $.Deferred();
+
+        runSPARQL(pfxs + rdfType.directRelsQuery(), q1, function(item) {
+            var pred = TomatoUtils.shrink(store.rdf.prefixes, item['pred'].value);
+            var both = TomatoUtils.shrink(store.rdf.prefixes, item['objtype'].value).split(":");
+            var currType = $scope.typesState.getType(both[0], both[1]);
+
+            return new TypeTreeItem(pred, currType, false);
+        });
+
+        runSPARQL(pfxs + rdfType.reverseRelsQuery(), q2, function(item) {
+            var pred = TomatoUtils.shrink(store.rdf.prefixes, item['pred'].value);
+            var both = TomatoUtils.shrink(store.rdf.prefixes, item['objtype'].value).split(":");
+            var currType = $scope.typesState.getType(both[0], both[1]);
+
+            return new TypeTreeItem(pred, currType, true);
+        });
+
+        $.when(q1, q2).done(function(directRels, reverseRels) {
+            dfd.resolve(directRels.concat(reverseRels));
+        });
+
+        return dfd.promise();
+    }
 }]);
 
 
