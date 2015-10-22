@@ -30,6 +30,44 @@ angular.module('controllers')
     $scope.reverse = false;
     $scope.filteredItems = [];
     $scope.queryBox = { searchText: "" };
+    $scope.tree = {
+        checkbox: false,
+        extensions: ["filter"],
+        quicksearch: true,
+        icons: false, // Display node icons
+        filter: {
+            autoApply: true,  // Re-apply last filter if lazy data is loaded
+            counter: true,  // Show a badge with number of matching child nodes near parent icons
+            fuzzy: false,  // Match single characters in order, e.g. 'fb' will match 'FooBar'
+            hideExpandedCounter: true,  // Hide counter badge, when parent is expanded
+            highlight: true,  // Highlight matches by wrapping inside <mark> tags
+            mode: "dimm"  // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+        },
+
+        lazyLoad: function(event, data) {
+            var couple = data.node.key.split(":");
+            var selectedType = $scope.typesState.getType(couple[0], couple[1]);
+
+            data.result = $scope.expand(selectedType);
+        },
+
+        click: function(event, data) {
+            var tt = $.ui.fancytree.getEventTargetType(event.originalEvent);
+
+            if (tt != 'expander') {
+                var couple = data.node.key.split(":");
+                $scope.select($scope.typesState.getType(couple[0], couple[1]));
+            }
+        },
+
+        renderNode: function(event, data) { // the way to add css class to li element
+            /*
+             setTimeout(function () {
+             $(data.node.li).addClass("list-group-item")
+             }, 20);
+             */
+        }
+    };
 
     /* event handlers */
 
@@ -78,45 +116,10 @@ angular.module('controllers')
             items.push(new TypeTreeItem(null, $scope.items[i], false))
         }
 
-        $("#typesTree").fancytree({
-            source: items,
-            checkbox: false,
-            extensions: ["filter"],
-            quicksearch: true,
-            icons: false, // Display node icons
-            filter: {
-                autoApply: true,  // Re-apply last filter if lazy data is loaded
-                counter: true,  // Show a badge with number of matching child nodes near parent icons
-                fuzzy: false,  // Match single characters in order, e.g. 'fb' will match 'FooBar'
-                hideExpandedCounter: true,  // Hide counter badge, when parent is expanded
-                highlight: true,  // Highlight matches by wrapping inside <mark> tags
-                mode: "dimm"  // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
-            },
+        var tree = $scope.tree;
+        tree['source'] = items;
 
-            lazyLoad: function(event, data) {
-                var couple = data.node.key.split(":");
-                var selectedType = $scope.typesState.getType(couple[0], couple[1]);
-
-                data.result = $scope.expand(selectedType);
-            },
-
-            click: function(event, data) {
-                var tt = $.ui.fancytree.getEventTargetType(event.originalEvent);
-
-                if (tt != 'expander') {
-                    var couple = data.node.key.split(":");
-                    $scope.select($scope.typesState.getType(couple[0], couple[1]));
-                }
-            },
-
-            renderNode: function(event, data) { // the way to add css class to li element
-                /*
-                setTimeout(function () {
-                    $(data.node.li).addClass("list-group-item")
-                }, 20);
-                */
-            }
-        });
+        $("#typesTree").fancytree(tree);
     });
 
     $scope.$on('store.update', function(event, storeState) {
