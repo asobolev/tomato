@@ -3,8 +3,23 @@ angular.module('services')
 .factory('store', function ($rootScope) {
 
     var storeState = {
+        _prefixes: {},
         store: rdfstore.create(function(err, store) {}),
-        prefixes: {}  // FIXME remove that, use store.rdf.prefixes
+        prefixes: function() {
+            return this._prefixes;
+        },
+        prefixesAsText: function() {
+            var pfxText = "";
+            var prefixes = this.prefixes();
+
+            for (var pfx in prefixes) {
+                if (prefixes[pfx]) {
+                    pfxText += "PREFIX " + pfx + ": <" + prefixes[pfx] + "> \n"; // "&#13;&#10;";
+                }
+            }
+
+            return pfxText;
+        }
     };
 
     var update = function (rdfData) {
@@ -20,9 +35,9 @@ angular.module('services')
         // FIXME rdfstore-js does not support PREFIX parsing, workaround here
 
         function loadPrefixes(err, triple, prefixes) {
-            if (!triple) {
-                storeState.prefixes = prefixes;
+            storeState._prefixes = prefixes;
 
+            if (!triple) {
                 for (var prx in prefixes) {
                     if (Object.keys(storeState.store.rdf.prefixes).indexOf(prx) < 0) {
                         storeState.store.setPrefix(prx, prefixes[prx]);

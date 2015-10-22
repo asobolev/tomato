@@ -125,9 +125,6 @@ angular.module('controllers')
     $scope.$on('store.update', function(event, storeState) {
         $scope.storeState = storeState;
 
-        var store = storeState.store;
-        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
-
         var listClasses = new $.Deferred();
         listClasses.done(function(value) {
             types.update(value);
@@ -135,10 +132,23 @@ angular.module('controllers')
             $scope.$apply();
         });
 
-        runSPARQL(pfxs + RDFType.listClasses(), listClasses, function(item) {
-            var parts = TomatoUtils.shrink(store.rdf.prefixes, item['class'].value).split(":");
+        var queryString = storeState.prefixesAsText() + RDFType.listClasses();
+        runSPARQL(queryString, listClasses, function(item) {
+            var parts = TomatoUtils.shrink(storeState.prefixes(), item['class'].value).split(":");
 
-            return new RDFType(parts[0], parts[1], 0, []);
+            var rdfType = new RDFType(parts[0], parts[1], 0, []);
+
+            var listPredicates = new $.Deferred();
+            listPredicates.done(function(value) {
+                rdfType.predicates = value;
+            });
+
+            var q = storeState.prefixesAsText() + rdfType.listPredicates();
+            runSPARQL(q, listPredicates, function(item) {
+                return TomatoUtils.shrink(storeState.prefixes(), item['pred'].value);
+            });
+
+            return rdfType;
         });
     });
 
@@ -153,41 +163,28 @@ angular.module('controllers')
     };
 
     $scope.select = function (rdfType) {
-        var store = $scope.storeState.store;
-        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
-
-        var listPredicates = new $.Deferred();
-
-        listPredicates.done(function(value) {
-            rdfType.predicates = value;
-
-            query.update(pfxs, rdfType.buildSPARQL([]));
-        });
-
-        runSPARQL(pfxs + rdfType.listPredicates(), listPredicates, function(item) {
-            return TomatoUtils.shrink(store.rdf.prefixes, item['pred'].value);
-        });
+        query.update($scope.storeState.prefixesAsText(), rdfType.buildSPARQL([]));
     };
 
     $scope.expand = function (rdfType) {
         var dfd = new $.Deferred();
-        var store = $scope.storeState.store;
-        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
+        var store = $scope.storeState;
+        var pfxs = store.prefixesAsText();
 
         var q1 = new $.Deferred();
         var q2 = new $.Deferred();
 
         runSPARQL(pfxs + rdfType.directRelsQuery(), q1, function(item) {
-            var pred = TomatoUtils.shrink(store.rdf.prefixes, item['pred'].value);
-            var both = TomatoUtils.shrink(store.rdf.prefixes, item['objtype'].value).split(":");
+            var pred = TomatoUtils.shrink(store.prefixes(), item['pred'].value);
+            var both = TomatoUtils.shrink(store.prefixes(), item['objtype'].value).split(":");
             var currType = $scope.typesState.getType(both[0], both[1]);
 
             return new TypeTreeItem(pred, currType, false);
         });
 
         runSPARQL(pfxs + rdfType.reverseRelsQuery(), q2, function(item) {
-            var pred = TomatoUtils.shrink(store.rdf.prefixes, item['pred'].value);
-            var both = TomatoUtils.shrink(store.rdf.prefixes, item['objtype'].value).split(":");
+            var pred = TomatoUtils.shrink(store.prefixes(), item['pred'].value);
+            var both = TomatoUtils.shrink(store.prefixes(), item['objtype'].value).split(":");
             var currType = $scope.typesState.getType(both[0], both[1]);
 
             return new TypeTreeItem(pred, currType, true);
@@ -200,92 +197,3 @@ angular.module('controllers')
         return dfd.promise();
     }
 }]);
-
-
-
-
-
-// ------- tree
-
-
-/*
- $('#typesJsTree').jstree({ 'core' : {
- 'data' : [
- 'Simple root node',
- {
- 'text' : 'Root node 2',
- 'state' : {
- 'opened' : true,
- 'selected' : true
- },
- 'children' : [
- { 'text' : 'Child 1' },
- 'Child 2'
- ]
- }
- ]
- } });
- */
-
-/* -------------------
-
-
- var store = $scope.storeState.store;
-
- var URI = store.rdf.resolve(rdfType.getURI());
- var type = store.rdf.resolve("rdf:type"); // RDFModel.defaultContext.rdf
- var q1 = "SELECT DISTINCT ?s " +
- "{ ?s <" + type + "> <" + URI + "> . }";
-
- var q2 = "PREFIX sirota: <http://sirotalab.bio.lmu.de/ontology/0.1#> " +
- "SELECT DISTINCT * " +
- "{ ?s a sirota:Drive . " + // note a === <" + type + ">
- " OPTIONAL { ?s sirota:hasType ?t . } " +
- " OPTIONAL { ?s sirota:fullScrewTurn ?ft . }" +
- "}";
-
- var q3 = "PREFIX sirota: <http://sirotalab.bio.lmu.de/ontology/0.1#> " +
- "PREFIX gnode: <http://g-node.org/ontology/0.1#> " +
- "SELECT DISTINCT ?p " +
- "WHERE { " +
- " ?s a gnode:RecordingSession . " +
- " ?s ?p ?lit . " +
- " FILTER isliteral(?lit) . " +
- "}";
-
- var st = new rdfstore.Store({name:'test', overwrite:true}, function(err,str) {
- str.load(
- 'text/n3',
- '@prefix test: <http://test.com/> .\
- test:A test:prop1 1.\
- test:B test:prop1 2.\
- test:B test:prop2 test:A.\
- test:C test:prop2 test:A.',
- function (err) {
-
- str.execute(
- 'PREFIX test: <http://test.com/> \
- SELECT DISTINCT ?id ?p1 ?p2 \
- WHERE {\
- ?id ?p ?o .\
- OPTIONAL { ?id test:prop1 ?p1 . }\
- OPTIONAL { ?p2 test:prop2 ?id . }\
- } ORDER BY ?id', // GROUP BY is broken
- function (err, results) {
- if (!err) {
- var a = results.length;
- }
- }
- );
- });
- });
-
-
- $scope.storeState.store.execute(q3, function(err, results){
- if(!err) {
- var a = results.length;
- // results[0].s -> { token: "uri", value: "http://g-node/ont…" }
- }
- });
-
- */

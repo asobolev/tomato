@@ -67,6 +67,7 @@ angular.module('controllers')
 
         $scope.queryState = queryState;
         var store = $scope.storeState.store;
+        var pfxs = $scope.storeState.prefixes();
 
         store.execute(queryState.queryToString(), function(err, results){
             if(!err) {
@@ -92,12 +93,12 @@ angular.module('controllers')
                                     var rels = graph.match(null, null, item.value);
 
                                     rels.forEach(function(triple, g){
-                                        var predURI = TomatoUtils.shrink(store.rdf.prefixes,
+                                        var predURI = TomatoUtils.shrink(pfxs,
                                             triple.predicate.nominalValue);
 
                                         if (!(predURI in cell.objProperties)) {
                                             cell.objProperties[predURI] = TomatoUtils.shrink(
-                                                store.rdf.prefixes, resolveType(
+                                                pfxs, resolveType(
                                                     graph, triple.subject.valueOf()));
                                         }
                                     });
@@ -128,12 +129,8 @@ angular.module('controllers')
         var rdfType = $scope.typesState.getType(couple[0], couple[1]);
 
         var filters = ["?id " + objProperty + " <" + tableCell.value + ">"];
-        var sparql = rdfType.buildSPARQL(filters);
 
-        // FIXME optimize here: typesState.getType, prefixesToString
-        var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
-
-        query.update(pfxs, sparql);
+        query.update($scope.storeState.prefixesAsText(), rdfType.buildSPARQL(filters));
     };
 
     $scope.selectURI = function(tableCell) {
@@ -142,7 +139,7 @@ angular.module('controllers')
         store.graph(function (err, graph) {
 
             var typeAsString = TomatoUtils.shrink(
-                $scope.storeState.prefixes, resolveType(
+                $scope.storeState.prefixes(), resolveType(
                     graph, tableCell.value
             ));
 
@@ -151,11 +148,8 @@ angular.module('controllers')
 
             // FIXME add filter for ?id
             var filters = []; //["FILTER (?id = " + "<" + tableCell.value + ">)"];
-            var sparql = rdfType.buildSPARQL(filters);
 
-            var pfxs = TomatoUtils.prefixesToString($scope.storeState.prefixes);
-
-            query.update(pfxs, sparql);
+            query.update($scope.storeState.prefixesAsText(), rdfType.buildSPARQL(filters));
 
         });
     };
