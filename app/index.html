@@ -155,7 +155,7 @@
           <tr ng-repeat="row in filteredItems | orderByColumn:sortingOrder:reverse">
             <td ng-repeat="(key, cell) in row">
 
-              <div ng-if="cell.type == 'uri'" class="btn-group dropup">
+              <div ng-if="cell.rdfType != 'literal'" class="btn-group dropup">
                 <button type="button" class="btn btn-default"
                         ng-click="selectURI(cell)"
                         title="{{ cell.value }}">
@@ -176,7 +176,7 @@
                 </ul>
               </div>
 
-              <div ng-if="cell.type != 'uri'"
+              <div ng-if="cell.rdfType == 'literal'"
                       title="{{ cell.value }}">
                 {{ cell.value | asShortValue }}
               </div>

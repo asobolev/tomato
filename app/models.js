@@ -141,11 +141,3 @@ TomatoUtils.shrink = function(prefixes, URI) {
     var both = TomatoUtils.split(prefixes, URI);
     return both[0] + ":" + both[1];
 };
-
-TomatoUtils.resolveType = function(graph, URI) {  // returns URI of the RDF type
-    var typeNode = store.rdf.createNamedNode(store.rdf.resolve("rdf:type"));
-
-    graph.match(URI, typeNode, null).forEach(function(triple) {
-        return triple.object.nominalValue;
-    });
-};

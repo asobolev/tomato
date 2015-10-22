@@ -27,23 +27,13 @@ angular.module('controllers')
 
     function TableCell(type, value, objProperties) {
         this.divUID = Math.random().toString().slice(2);
-        this.type = type;  // 'uri' or 'literal'
+        this.rdfType = type;  // 'literal' or RDFType object
         this.value = value;  // '45.5' or 'http://g-node.org/0.1#BrainRegion:1'
         this.objProperties = objProperties; // {'gnode:isAboutAnimal': 'gnode:Preparation', ...}
 
         this.hasRelations = function() {
             return Object.keys(this.objProperties).length > 0;
         }
-    }
-
-    function resolveType(graph, URI) {  // FIXME make a closure, use store to query
-        var store = $scope.storeState.store;
-
-        return graph.match(
-            store.rdf.createNamedNode(URI),
-            store.rdf.createNamedNode(store.rdf.resolve("rdf:type")),
-            null
-        ).toArray()[0].object.valueOf();
     }
 
     function searchMatch(haystack, needle) {
@@ -68,57 +58,82 @@ angular.module('controllers')
         $scope.queryState = queryState;
         var store = $scope.storeState.store;
         var pfxs = $scope.storeState.prefixes();
+        var data = [];
+
+        var resultsD = new $.Deferred();
+        var graphD = new $.Deferred();
 
         store.execute(queryState.queryToString(), function(err, results){
-            if(!err) {
-                store.graph(function (err, graph) {
+            resultsD.resolve(results);
+        });
 
-                    if (results.length > 0) {
-                        $scope.headers = Object.keys(results[0]);
-                        $scope.sortingOrder = $scope.headers[0];
+        store.graph(function (err, graph) {
+            graphD.resolve(graph);
+        });
+
+        $.when(resultsD, graphD).done(function(results, graph) {
+
+            function resolveType(URI) {
+                var store = $scope.storeState.store;
+
+                return graph.match(
+                    store.rdf.createNamedNode(URI),
+                    store.rdf.createNamedNode(store.rdf.resolve("rdf:type")),
+                    null
+                ).toArray()[0].object.valueOf();
+            }
+
+            function parseRecord(sparqlResultsRecord) {
+                var record = {};
+                for (var j = 0; j < $scope.headers.length; j++) {
+                    var item = sparqlResultsRecord[$scope.headers[j]];
+
+                    record[$scope.headers[j]] = parseCell(item);
+                }
+
+                return record;
+            }
+
+            function parseCell(sparqlResultsValue) {
+                var item = sparqlResultsValue;
+
+                if (!item) {  // null Literal
+                    return new TableCell('literal', "", {});
+                }
+
+                if (item.token == 'literal') {  // non-null Literal
+                    return new TableCell(item.token, item.value, {});
+                }
+
+                // actual RDF Resource
+                var cell = new TableCell(resolveType(item.value), item.value, {});
+                var relations = graph.match(null, null, item.value);
+
+                relations.forEach(function(triple, g){
+                    var predURI = TomatoUtils.shrink(pfxs, triple.predicate.valueOf());
+
+                    if (!(predURI in cell.objProperties)) {
+                        var predType = resolveType(triple.subject.valueOf());
+
+                        cell.objProperties[predURI] = TomatoUtils.shrink(pfxs,predType);
                     }
-
-                    var data = [];
-
-                    for (var i = 0; i < results.length; i++) {
-                        var record = {};
-
-                        for (var j = 0; j < $scope.headers.length; j++) {
-                            var item = results[i][$scope.headers[j]];
-
-                            if (item) {
-                                var cell = new TableCell(item.token, item.value, {});
-
-                                if (item.token == 'uri') {
-                                    var rels = graph.match(null, null, item.value);
-
-                                    rels.forEach(function(triple, g){
-                                        var predURI = TomatoUtils.shrink(pfxs,
-                                            triple.predicate.nominalValue);
-
-                                        if (!(predURI in cell.objProperties)) {
-                                            cell.objProperties[predURI] = TomatoUtils.shrink(
-                                                pfxs, resolveType(
-                                                    graph, triple.subject.valueOf()));
-                                        }
-                                    });
-                                }
-
-                                record[$scope.headers[j]] = cell;
-                            } else {
-                                record[$scope.headers[j]] = new TableCell('literal', "", {});
-                            }
-                        }
-
-                        data.push(record);
-                    }
-
-                    $scope.records = data;
-                    $scope.search();
-                    $scope.$apply();
                 });
 
+                return cell;
             }
+
+            if (results.length > 0) {
+                $scope.headers = Object.keys(results[0]);
+                $scope.sortingOrder = $scope.headers[0];
+            }
+
+            for (var i = 0; i < results.length; i++) {
+                data.push(parseRecord(results[i]));
+            }
+
+            $scope.records = data;
+            $scope.search();
+            $scope.$apply();
         });
     });
 
@@ -134,24 +149,15 @@ angular.module('controllers')
     };
 
     $scope.selectURI = function(tableCell) {
-        var store = $scope.storeState.store;
+        if (!(tableCell.rdfType == 'literal')) {
+            var parts = TomatoUtils.split($scope.storeState.prefixes(), tableCell.rdfType);
+            var rdfType = $scope.typesState.getType(parts[0], parts[1]);
 
-        store.graph(function (err, graph) {
+            query.update($scope.storeState.prefixesAsText(), rdfType.buildSPARQL([]));
 
-            var typeAsString = TomatoUtils.shrink(
-                $scope.storeState.prefixes(), resolveType(
-                    graph, tableCell.value
-            ));
-
-            var couple = typeAsString.split(":");
-            var rdfType = $scope.typesState.getType(couple[0], couple[1]);
-
-            // FIXME add filter for ?id
-            var filters = []; //["FILTER (?id = " + "<" + tableCell.value + ">)"];
-
-            query.update($scope.storeState.prefixesAsText(), rdfType.buildSPARQL(filters));
-
-        });
+            // TODO make it inside SPARQL when supported
+            $scope.queryBox.searchText = tableCell.value;
+        }
     };
 
     /* table sorting, search and pagination */

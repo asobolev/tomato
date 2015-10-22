@@ -140,7 +140,9 @@ angular.module('controllers')
 
             var listPredicates = new $.Deferred();
             listPredicates.done(function(value) {
-                rdfType.predicates = value;
+                rdfType.predicates = $filter('filter')(value, function(predicate) {
+                    return predicate != "rdf:type";
+                });
             });
 
             var q = storeState.prefixesAsText() + rdfType.listPredicates();
