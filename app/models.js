@@ -52,7 +52,7 @@ RDFType.prototype.reverseRelsQuery = function() {
 };
 
 RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
-    var select = "SELECT DISTINCT (?id AS ?" + this.name + "_id) ";
+    var select = "SELECT DISTINCT (?id AS ?" + this.name + "_id)";
     var where = "WHERE {\n" + "\t ?id a " + this.getURI() + " .\n";
     var aliases = [];
 
@@ -61,8 +61,6 @@ RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
     }
 
     for (var i = 0; i < this.predicates.length; i++) {
-        var varName = "?t" + i;
-
         var alias = this.predicates[i];
         if (alias.indexOf(":") > -1) {
             var parts = alias.split(":");
@@ -74,8 +72,8 @@ RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
                 aliases.push(parts[1]);
             }
         }
-        select += "(" + varName + " AS ?" + alias + ") ";
-        where += "\t OPTIONAL { ?id " + this.predicates[i] + " " + varName + " . } \n";
+        select += " ?" + alias;
+        where += "\t OPTIONAL { ?id " + this.predicates[i] + " ?" + alias + " . } \n";
     }
     select += "\n";
     where += "}";
