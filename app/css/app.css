@@ -73,11 +73,19 @@
 }
 
 
-span.fancytree-node.typesCustom > span.fancytree-title {
+span.fancytree-node.resourceItem > span.fancytree-title {
   min-height: 30px;
   vertical-align: middle;
   font-size: 14px;
   color: #555;
+}
+
+span.fancytree-node.predicateItem > span.fancytree-title {
+  min-height: 30px;
+  vertical-align: middle;
+  font-size: 14px;
+  color: #555;
+  pointer-events:none;
 }
 
 ul.fancytree-container {

@@ -96,12 +96,21 @@ RDFType.prototype.listPredicates = function() {
             } ORDER BY ?pred";
 };
 
+RDFType.prototype.listDataProperties = function() {
+    return "SELECT DISTINCT ?pred\
+            WHERE {\
+                ?id a " + this.getURI() + " .\
+                ?id ?pred ?val .\
+                FILTER (isliteral(?val)) .\
+            } ORDER BY ?pred";
+};
+
 
 /**
- * Class that represents an item in the RDF types tree
+ * Class that represents a Resource item in the RDF types tree
  *
  */
-function TypeTreeItem(predicate, rdfType, reverse) {
+function ResourceItem(predicate, rdfType, reverse) {
 
     var badge = '<span class="badge">' + rdfType.qty + '</span>\t ';
     var arrow = '<span class="glyphicon glyphicon-arrow-' + (reverse ? "left" : "right") + '" aria-hidden="true"></span>';
@@ -109,10 +118,24 @@ function TypeTreeItem(predicate, rdfType, reverse) {
     var post = '<small>' + rdfType.prefix + ':</small>' + rdfType.name;
 
     this.key = rdfType.getURI();
-    this.title = badge + (pre == "" ? "" : pre + " " + arrow + " ") + post;
+    this.title = "<div title=" + rdfType.predicates.join() + ">" + badge + (pre == "" ? "" : pre + " " + arrow + " ") + post + "</div>";
     this.folder = true;
     this.lazy = true;
-    this.extraClasses = "typesCustom";
+    this.extraClasses = "resourceItem";
+}
+
+
+/**
+ * Class that represents a Predicate item in the RDF types tree
+ *
+ */
+function PredicateItem(predicate) {
+
+    this.key = predicate;
+    this.title = '<small>' + predicate.split(":")[0] + ':</small>' + predicate.split(":")[1];
+    this.folder = false;
+    this.lazy = false;
+    this.extraClasses = "predicateItem";
 }
 
 

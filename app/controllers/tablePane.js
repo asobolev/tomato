@@ -76,11 +76,13 @@ angular.module('controllers')
             function resolveType(URI) {
                 var store = $scope.storeState.store;
 
-                return graph.match(
+                var result = graph.match(
                     store.rdf.createNamedNode(URI),
                     store.rdf.createNamedNode(store.rdf.resolve("rdf:type")),
                     null
-                ).toArray()[0].object.valueOf();
+                ).toArray();
+
+                return result.length > 0 ? result[0].object.valueOf() : null;
             }
 
             function parseRecord(sparqlResultsRecord) {
@@ -115,7 +117,9 @@ angular.module('controllers')
                     if (!(predURI in cell.objProperties)) {
                         var predType = resolveType(triple.subject.valueOf());
 
-                        cell.objProperties[predURI] = TomatoUtils.shrink(pfxs,predType);
+                        if (predType != null) {
+                            cell.objProperties[predURI] = TomatoUtils.shrink(pfxs,predType);
+                        }
                     }
                 });
 
@@ -156,7 +160,7 @@ angular.module('controllers')
             query.update($scope.storeState.prefixesAsText(), rdfType.buildSPARQL([]));
 
             // TODO make it inside SPARQL when supported
-            $scope.queryBox.searchText = tableCell.value;
+            //$scope.queryBox.searchText = tableCell.value;
         }
     };
 

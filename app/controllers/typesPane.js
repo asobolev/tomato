@@ -54,7 +54,7 @@ angular.module('controllers')
         click: function(event, data) {
             var tt = $.ui.fancytree.getEventTargetType(event.originalEvent);
 
-            if (tt != 'expander') {
+            if (tt != 'expander' && data.node.folder) {
                 var couple = data.node.key.split(":");
                 $scope.select($scope.typesState.getType(couple[0], couple[1]));
             }
@@ -113,7 +113,7 @@ angular.module('controllers')
 
         var items = [];
         for (var i = 0; i < $scope.items.length; i++) {
-            items.push(new TypeTreeItem(null, $scope.items[i], false))
+            items.push(new ResourceItem(null, $scope.items[i], false))
         }
 
         var tree = $scope.tree;
@@ -175,13 +175,14 @@ angular.module('controllers')
 
         var q1 = new $.Deferred();
         var q2 = new $.Deferred();
+        var q3 = new $.Deferred();
 
         runSPARQL(pfxs + rdfType.directRelsQuery(), q1, function(item) {
             var pred = TomatoUtils.shrink(store.prefixes(), item['pred'].value);
             var both = TomatoUtils.shrink(store.prefixes(), item['objtype'].value).split(":");
             var currType = $scope.typesState.getType(both[0], both[1]);
 
-            return new TypeTreeItem(pred, currType, false);
+            return new ResourceItem(pred, currType, false);
         });
 
         runSPARQL(pfxs + rdfType.reverseRelsQuery(), q2, function(item) {
@@ -189,11 +190,17 @@ angular.module('controllers')
             var both = TomatoUtils.shrink(store.prefixes(), item['objtype'].value).split(":");
             var currType = $scope.typesState.getType(both[0], both[1]);
 
-            return new TypeTreeItem(pred, currType, true);
+            return new ResourceItem(pred, currType, true);
         });
 
-        $.when(q1, q2).done(function(directRels, reverseRels) {
-            dfd.resolve(directRels.concat(reverseRels));
+        runSPARQL(pfxs + rdfType.listDataProperties(), q3, function(item) {
+            var pred = TomatoUtils.shrink(store.prefixes(), item['pred'].value);
+
+            return new PredicateItem(pred);
+        });
+
+        $.when(q1, q2, q3).done(function(directRels, reverseRels, dataPropeties) {
+            dfd.resolve(dataPropeties.concat(directRels.concat(reverseRels)));
         });
 
         return dfd.promise();
