@@ -63,9 +63,22 @@ angular.module('controllers')
         var resultsD = new $.Deferred();
         var graphD = new $.Deferred();
 
-        store.execute(queryState.queryToString(), function(err, results){
-            resultsD.resolve(results);
-        });
+        try {
+            store.execute(queryState.queryToString(), function(err, results){
+                if (err) {
+                    resultsD.reject();
+                    alert(err.toString());
+                } else {
+                    resultsD.resolve(results);
+                }
+            });
+        } catch(err) { // due to a bug in rdfstore.js
+            resultsD.reject();
+
+            var msg = "The rdfstore.js is used to execute this query. " +
+                    "Execution failed with the following message: \n";
+            alert(msg + err.toString());
+        }
 
         store.graph(function (err, graph) {
             graphD.resolve(graph);
