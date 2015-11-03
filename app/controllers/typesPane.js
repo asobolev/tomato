@@ -124,12 +124,13 @@ angular.module('controllers')
 
     $scope.$on('store.update', function(event, storeState) {
         $scope.storeState = storeState;
+        var store = $scope.storeState.store;
 
         var listClasses = new $.Deferred();
-        listClasses.done(function(value) {
-            types.update(value);
-            $scope.search();
-            $scope.$apply();
+        var graphD = new $.Deferred();
+
+        store.graph(function (err, graph) {
+            graphD.resolve(graph);
         });
 
         var queryString = storeState.prefixesAsText() + RDFType.listClasses();
@@ -151,6 +152,20 @@ angular.module('controllers')
             });
 
             return rdfType;
+        });
+
+        $.when(listClasses, graphD).done(function(classes, graph) {
+            var typeNode = store.rdf.createNamedNode(store.rdf.resolve("rdf:type"));
+
+            for (var i = 0; i < classes.length; i++) {
+                var clsName = store.rdf.createNamedNode(store.rdf.resolve(classes[i].getURI()));
+
+                classes[i].qty = graph.match(null, typeNode, clsName).toArray().length;
+            }
+
+            types.update(classes);
+            $scope.search();
+            $scope.$apply();
         });
     });
 
