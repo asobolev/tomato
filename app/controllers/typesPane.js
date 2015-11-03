@@ -124,6 +124,8 @@ angular.module('controllers')
     });
 
     $scope.$on('store.update', function(event, storeState) {
+        $('#spinner').show();
+
         $scope.storeState = storeState;
         var store = $scope.storeState.store;
 
@@ -140,7 +142,6 @@ angular.module('controllers')
 
             var rdfType = new RDFType(parts[0], parts[1], 0, []);
 
-            /*
             var listPredicates = new $.Deferred();
             listPredicates.done(function(value) {
                 rdfType.predicates = $filter('filter')(value, function(predicate) {
@@ -152,7 +153,6 @@ angular.module('controllers')
             runSPARQL(q, listPredicates, function(item) {
                 return TomatoUtils.shrink(storeState.prefixes(), item['pred'].value);
             });
-            */
 
             return rdfType;
         });
@@ -165,6 +165,8 @@ angular.module('controllers')
 
                 classes[i].qty = graph.match(null, typeNode, clsName).toArray().length;
             }
+
+            $('#spinner').hide();
 
             types.update(classes);
             $scope.search();
