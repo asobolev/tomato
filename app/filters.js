@@ -2,7 +2,7 @@ angular.module('filters', [])
 
 .filter('asShortURI', function() {
     return function(input) {
-        return input.length < 25 ? input : input.slice(0, 7) + "..." + input.slice(input.length - 15);
+        return input.length < 25 ? input : input.slice(0, 4) + "..." + input.slice(input.length - 12);
     };
 })
 

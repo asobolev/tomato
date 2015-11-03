@@ -25,10 +25,16 @@ angular.module('services')
     var update = function (rdfData) {
 
         function broadcast(err, results) {
-            storeState._prefixes['rdf'] = storeState.store.rdf.prefixes['rdf'];
-            storeState._prefixes['rdfs'] = storeState.store.rdf.prefixes['rdfs'];
+            if (!err) {
+                storeState._prefixes['rdf'] = storeState.store.rdf.prefixes['rdf'];
+                storeState._prefixes['rdfs'] = storeState.store.rdf.prefixes['rdfs'];
 
-            $rootScope.$broadcast('store.update', storeState);
+                $rootScope.loaded = true;
+                $rootScope.$apply();
+                $rootScope.$broadcast('store.update', storeState);
+            } else {
+                alert(err.toString());
+            }
         }
 
         function parsePrefix(namespace, URI) {

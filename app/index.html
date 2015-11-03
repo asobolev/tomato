@@ -67,8 +67,18 @@
 
   <div class="col-md-4" ng-controller="QueryPane">
     <div class="input-group" id="query-group">
-      <textarea ng-model="prefixesText" class="form-control custom-control" rows="5" style="resize:none"></textarea>
-      <textarea ng-model="bodyText" class="form-control custom-control" rows="10" style="resize:none"></textarea>
+      <textarea ng-model="prefixesText"
+                placeholder="Select an item in the tree to update PREFIXes.."
+                class="form-control custom-control"
+                rows="5"
+                style="resize:none">
+      </textarea>
+      <textarea ng-model="bodyText"
+                placeholder="Select an item in the tree to update SPARQL.."
+                class="form-control custom-control"
+                rows="10"
+                style="resize:none">
+      </textarea>
       <button class="btn btn-default" type="button" id="queryBtn" ng-click="execute()">Execute</button>
     </div>
   </div>
