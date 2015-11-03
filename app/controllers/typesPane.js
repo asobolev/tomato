@@ -119,7 +119,8 @@ angular.module('controllers')
         var tree = $scope.tree;
         tree['source'] = items;
 
-        $("#typesTree").fancytree(tree);
+        $("#typesTree").empty();
+        $("#typesTree").fancytree($scope.tree);  // FIXME does not work
     });
 
     $scope.$on('store.update', function(event, storeState) {

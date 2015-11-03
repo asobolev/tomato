@@ -4,7 +4,7 @@ angular.module('services')
 
     var storeState = {
         _prefixes: {},
-        store: rdfstore.create(function(err, store) {}),
+        store: {},
         prefixes: function() {
             return this._prefixes;
         },
@@ -26,9 +26,6 @@ angular.module('services')
 
         function broadcast(err, results) {
             if (!err) {
-                storeState._prefixes['rdf'] = storeState.store.rdf.prefixes['rdf'];
-                storeState._prefixes['rdfs'] = storeState.store.rdf.prefixes['rdfs'];
-
                 $rootScope.loaded = true;
                 $rootScope.$apply();
                 $rootScope.$broadcast('store.update', storeState);
@@ -47,7 +44,9 @@ angular.module('services')
         var parser = N3.Parser();
         parser.parse(rdfData, null, parsePrefix);
 
-        storeState.store.load("text/turtle", rdfData, broadcast);
+        storeState.store = rdfstore.create(function(err, store) {
+            store.load("text/turtle", rdfData, broadcast)
+        });
     };
 
     return {
