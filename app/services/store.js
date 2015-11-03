@@ -40,8 +40,8 @@ angular.module('services')
         function parsePrefix(namespace, URI) {
             if (Object.keys(storeState.store.rdf.prefixes).indexOf(namespace) < 0) {
                 storeState.store.setPrefix(namespace, URI);
-                storeState._prefixes[namespace] = URI;
             }
+            storeState._prefixes[namespace] = URI;
         }
 
         var parser = N3.Parser();

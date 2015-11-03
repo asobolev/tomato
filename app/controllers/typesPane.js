@@ -139,6 +139,7 @@ angular.module('controllers')
 
             var rdfType = new RDFType(parts[0], parts[1], 0, []);
 
+            /*
             var listPredicates = new $.Deferred();
             listPredicates.done(function(value) {
                 rdfType.predicates = $filter('filter')(value, function(predicate) {
@@ -150,6 +151,7 @@ angular.module('controllers')
             runSPARQL(q, listPredicates, function(item) {
                 return TomatoUtils.shrink(storeState.prefixes(), item['pred'].value);
             });
+            */
 
             return rdfType;
         });

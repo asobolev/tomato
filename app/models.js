@@ -145,17 +145,13 @@ function PredicateItem(predicate) {
 function TomatoUtils() {}
 
 TomatoUtils.split = function(prefixes, URI) {
-    var couple = URI.split("#");
-    var prefix = couple[0] + "#";
-    var name = couple[1];
-
     for (var pfx in prefixes) {
-        if (prefixes[pfx] && prefixes[pfx] === prefix) {
-            return [pfx, name]
+        if (URI.indexOf(prefixes[pfx]) == 0) {
+            return [pfx, URI.slice(prefixes[pfx].length)]
         }
     }
 
-    return [prefix, name];
+    return ["", URI];
 };
 
 TomatoUtils.shrink = function(prefixes, URI) {
