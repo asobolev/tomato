@@ -116,14 +116,13 @@ angular.module('controllers')
             items.push(new ResourceItem(null, $scope.items[i], false))
         }
 
-        var tree = $scope.tree;
-        tree['source'] = items;
-
-        $("#typesTree").empty();
-        $("#typesTree").fancytree($scope.tree);  // FIXME does not work
+        $scope.tree['source'] = items;
+        $("#typesTree").fancytree($scope.tree);  // FIXME does not work for many updates
     });
 
     $scope.$on('store.update', function(event, storeState) {
+        info.update("Building classes tree..");
+
         $scope.storeState = storeState;
         var store = $scope.storeState.store;
 
@@ -164,7 +163,9 @@ angular.module('controllers')
                 classes[i].qty = graph.match(null, typeNode, clsName).toArray().length;
             }
 
+
             types.update(classes);
+            info.clear();
             $scope.search();
             $scope.$apply();
         });

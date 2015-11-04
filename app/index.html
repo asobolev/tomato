@@ -44,10 +44,6 @@
     </div><!-- /input-group -->
 
     <input id="fileInput" type="file" style="visibility:hidden" />
-
-    <div ng-if="!$root.loaded" class="starter-template">
-      <h2>Tomato: RDF data viewer</h2>
-    </div>
   </div>
 
 
@@ -55,9 +51,12 @@
 
 
   <div class="col-md-12" ng-controller="InfoPane">
-    <div class="text-center"><p>{{ infoString }}</p></div>
+    <div class="text-center"><p ng-bind="infoString"></p></div>
   </div>
 
+  <div ng-if="!$root.loaded" class="col-md-12 starter-template">
+    <h2>Tomato: RDF data viewer</h2>
+  </div>
 
   <!-- TYPES PANE -->
 

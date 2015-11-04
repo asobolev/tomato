@@ -15,7 +15,7 @@ angular.module('controllers')
                 return function(e) {
                     store.update(e.target.result);
 
-                    info.clear();
+                    info.update("Parsing data..");
                 };
             })(f);
 
