@@ -25,14 +25,15 @@ angular.module('controllers')
     $scope.currentPage = 0;
     $scope.queryBox = { searchText: "" };
 
-    function TableCell(type, value, objProperties) {
-        this.divUID = Math.random().toString().slice(2);
-        this.rdfType = type;  // 'literal' or RDFType object
+    function TableCell(type, value) {
+        this.divUID = Math.random().toString().slice(2);  // random UID
+        this.rdfType = type;  // 'literal' or actual type like 'http://xmlns.com/foaf/0.1/Person'
         this.value = value;  // '45.5' or 'http://g-node.org/0.1#BrainRegion:1'
-        this.objProperties = objProperties; // {'gnode:isAboutAnimal': 'gnode:Preparation', ...}
+        this.directObjProperties = {}; // {'gnode:isAboutAnimal': 'gnode:Preparation', ...}
+        this.reverseObjProperties = {}; // {'gnode:isAboutAnimal': 'gnode:Preparation', ...}
 
         this.hasRelations = function() {
-            return Object.keys(this.objProperties).length > 0;
+            return Object.keys(this.directObjProperties).length > 0 || Object.keys(this.reverseObjProperties).length > 0;
         }
     }
 
@@ -95,7 +96,31 @@ angular.module('controllers')
                     null
                 ).toArray();
 
+                // string like 'http://xmlns.com/foaf/0.1/Person' or null
                 return result.length > 0 ? result[0].object.valueOf() : null;
+            }
+
+            function getProperties(URI, reverse) {
+                var results = {};
+                var relations = graph.match(reverse ? null : URI, null, reverse ? URI : null);
+
+                relations.forEach(function(triple, g) {
+                    if (reverse || triple.object.interfaceName != "Literal") {
+                        var predURI = TomatoUtils.shrink(pfxs, triple.predicate.valueOf());
+
+                        if (!(predURI in results) && (predURI != "rdf:type")) {
+                            var predType = resolveType(
+                                reverse ? triple.subject.valueOf() : triple.object.valueOf()
+                            );
+
+                            if (predType != null) {
+                                results[predURI] = TomatoUtils.shrink(pfxs,predType);
+                            }
+                        }
+                    }
+                });
+
+                return results;
             }
 
             function parseRecord(sparqlResultsRecord) {
@@ -113,28 +138,17 @@ angular.module('controllers')
                 var item = sparqlResultsValue;
 
                 if (!item) {  // null Literal
-                    return new TableCell('literal', "", {});
+                    return new TableCell('literal', "");
                 }
 
                 if (item.token == 'literal') {  // non-null Literal
-                    return new TableCell(item.token, item.value, {});
+                    return new TableCell(item.token, item.value);
                 }
 
                 // actual RDF Resource
-                var cell = new TableCell(resolveType(item.value), item.value, {});
-                var relations = graph.match(null, null, item.value);
-
-                relations.forEach(function(triple, g){
-                    var predURI = TomatoUtils.shrink(pfxs, triple.predicate.valueOf());
-
-                    if (!(predURI in cell.objProperties)) {
-                        var predType = resolveType(triple.subject.valueOf());
-
-                        if (predType != null) {
-                            cell.objProperties[predURI] = TomatoUtils.shrink(pfxs,predType);
-                        }
-                    }
-                });
+                var cell = new TableCell(resolveType(item.value), item.value);
+                cell.directObjProperties = getProperties(item.value, false);
+                cell.reverseObjProperties = getProperties(item.value, true);
 
                 return cell;
             }
@@ -156,8 +170,17 @@ angular.module('controllers')
 
     /* user actions */
 
-    $scope.selectProperty = function(tableCell, objProperty) {
-        var couple = tableCell.objProperties[objProperty].split(":");
+    $scope.selectDirectProperty = function(tableCell, objProperty) {
+        var couple = tableCell.directObjProperties[objProperty].split(":");
+        var rdfType = $scope.typesState.getType(couple[0], couple[1]);
+
+        var filters = ["<" + tableCell.value + "> " + objProperty + " ?id"];
+
+        query.update($scope.storeState.prefixesAsText(), rdfType.buildSPARQL(filters));
+    };
+
+    $scope.selectReverseProperty = function(tableCell, objProperty) {
+        var couple = tableCell.reverseObjProperties[objProperty].split(":");
         var rdfType = $scope.typesState.getType(couple[0], couple[1]);
 
         var filters = ["?id " + objProperty + " <" + tableCell.value + ">"];

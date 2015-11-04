@@ -186,8 +186,11 @@
                   <span class="sr-only">Toggle Dropdown</span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="{{ cell.divUID }}">
-                  <li ng-repeat="(prop, type) in cell.objProperties">
-                    <a href="#" ng-click="selectProperty(cell, prop)">{{ type }}->{{ prop }}</a>
+                  <li ng-repeat="(prop, type) in cell.reverseObjProperties">
+                    <a href="#" ng-click="selectReverseProperty(cell, prop)">{{ type }}->{{ prop }}</a>
+                  </li>
+                  <li ng-repeat="(prop, type) in cell.directObjProperties">
+                    <a href="#" ng-click="selectDirectProperty(cell, prop)">{{ type }}<-{{ prop }}</a>
                   </li>
                 </ul>
               </div>
