@@ -139,16 +139,27 @@ angular.module('controllers')
 
             var rdfType = new RDFType(parts[0], parts[1], 0, []);
 
-            var listPredicates = new $.Deferred();
-            listPredicates.done(function(value) {
-                rdfType.predicates = $filter('filter')(value, function(predicate) {
-                    return predicate != "rdf:type";
-                });
+            var q1 = new $.Deferred();
+            var q2 = new $.Deferred();
+
+            var qs1 = storeState.prefixesAsText() + rdfType.listDataProperties();
+            runSPARQL(qs1, q1, function(item) {
+                return TomatoUtils.shrink(storeState.prefixes(), item['pred'].value);
             });
 
-            var q = storeState.prefixesAsText() + rdfType.listPredicates();
-            runSPARQL(q, listPredicates, function(item) {
+            var qs2 = storeState.prefixesAsText() + rdfType.listObjProperties();
+            runSPARQL(qs2, q2, function(item) {
                 return TomatoUtils.shrink(storeState.prefixes(), item['pred'].value);
+            });
+
+            $.when(q1, q2).done(function(dataProps, objProps) {
+                rdfType.dataProperties = $filter('filter')(dataProps, function(predicate) {
+                    return predicate != "rdf:type";
+                });
+
+                rdfType.objProperties = $filter('filter')(objProps, function(predicate) {
+                    return predicate != "rdf:type";
+                });
             });
 
             return rdfType;
@@ -162,7 +173,6 @@ angular.module('controllers')
 
                 classes[i].qty = graph.match(null, typeNode, clsName).toArray().length;
             }
-
 
             types.update(classes);
             info.clear();
