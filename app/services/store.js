@@ -26,10 +26,14 @@ angular.module('services')
 
         function broadcast(err, results) {
             if (!err) {
+                $rootScope.infoString = "";
+
                 $rootScope.loaded = true;
                 $rootScope.$apply();
                 $rootScope.$broadcast('store.update', storeState);
             } else {
+                $rootScope.infoString = "No data loaded. Select the data source first.";
+
                 alert(err.toString());
             }
         }

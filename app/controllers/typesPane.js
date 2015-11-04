@@ -1,7 +1,7 @@
 angular.module('controllers')
 
-.controller('TypesPane', ['$scope', '$filter', 'store', 'query', 'types',
-        function($scope, $filter, store, query, types) {
+.controller('TypesPane', ['$scope', '$filter', 'store', 'query', 'types', 'info',
+        function($scope, $filter, store, query, types, info) {
 
     function searchMatch(haystack, needle) {
         if (!needle) {
@@ -124,8 +124,6 @@ angular.module('controllers')
     });
 
     $scope.$on('store.update', function(event, storeState) {
-        $('#spinner').show();
-
         $scope.storeState = storeState;
         var store = $scope.storeState.store;
 
@@ -165,8 +163,6 @@ angular.module('controllers')
 
                 classes[i].qty = graph.match(null, typeNode, clsName).toArray().length;
             }
-
-            $('#spinner').hide();
 
             types.update(classes);
             $scope.search();

@@ -47,8 +47,15 @@
 
     <div ng-if="!$root.loaded" class="starter-template">
       <h2>Tomato: RDF data viewer</h2>
-      <p>No data loaded. Select the file first.</p>
     </div>
+  </div>
+
+
+  <!-- INFO PANE -->
+
+
+  <div class="col-md-12" ng-controller="InfoPane">
+    <div class="text-center"><p>{{ infoString }}</p></div>
   </div>
 
 
@@ -58,10 +65,6 @@
   <div ng-if="$root.loaded">
 
   <div class="col-md-4" ng-controller="TypesPane">
-    <div id="spinner" class="text-center spinner" style="display:none;">
-      <img id="img-spinner" src="img/spinner.gif" alt="Loading.."/>
-    </div>
-
     <div id="typesTree"></div>
   </div>
 
@@ -219,10 +222,12 @@
   <script src="app.js"></script>
   <script src="models.js"></script>
   <script src="filters.js"></script>
+  <script src="services/info.js"></script>
   <script src="services/store.js"></script>
   <script src="services/query.js"></script>
   <script src="services/types.js"></script>
   <script src="controllers/filesPane.js"></script>
+  <script src="controllers/infoPane.js"></script>
   <script src="controllers/typesPane.js"></script>
   <script src="controllers/queryPane.js"></script>
   <script src="controllers/historyPane.js"></script>

@@ -91,11 +91,3 @@ span.fancytree-node.predicateItem > span.fancytree-title {
 ul.fancytree-container {
   border: none;
 }
-
-
-
-#spinner {
-  z-index:1234;
-  width: 50px; /* width of the spinner gif */
-  height: 51px; /*hight of the spinner gif +2px to fix IE8 issue */
-}

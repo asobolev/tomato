@@ -1,6 +1,7 @@
 angular.module('controllers')
 
-.controller('FileParser', ['$scope', '$rootScope', 'store', function($scope, $rootScope, store) {
+.controller('FileParser', ['$scope', '$rootScope', 'store', 'info',
+    function($scope, $rootScope, store, info) {
 
     $scope.location = "";
 
@@ -13,11 +14,15 @@ angular.module('controllers')
             reader.onload = (function(theFile) {
                 return function(e) {
                     store.update(e.target.result);
+
+                    info.clear();
                 };
             })(f);
 
             $scope.location = f.name;
-            //localStorage.setItem("fileLocation", );
+
+            info.update("Loading file..");
+
             reader.readAsText(f);
         }
     };
