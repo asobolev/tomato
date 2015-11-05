@@ -170,7 +170,7 @@ angular.module('controllers')
             }
 
             types.update(classes);
-            info.clear();
+            info.update("Ready for requests.");
             $scope.search();
             $scope.$apply();
         });

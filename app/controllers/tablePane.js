@@ -1,7 +1,7 @@
 angular.module('controllers')
 
-.controller('TablePane', ['$scope', '$filter', 'store', 'query', 'types',
-        function($scope, $filter, store, query, types) {
+.controller('TablePane', ['$scope', '$filter', 'store', 'query', 'types', 'info',
+        function($scope, $filter, store, query, types, info) {
 
     /* shared services (states) */
 
@@ -43,6 +43,7 @@ angular.module('controllers')
     });
 
     $scope.$on('query.update', function(event, queryState) {
+        info.update("Executing query...");
 
         $scope.queryState = queryState;
         var store = $scope.storeState.store;
@@ -106,6 +107,7 @@ angular.module('controllers')
             }
 
             $scope.records = data;
+            info.update("Ready for requests.");
             $scope.search();
             $scope.$apply();
         });
