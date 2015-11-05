@@ -46,10 +46,10 @@ angular.module('controllers')
 
         $scope.queryState = queryState;
         var store = $scope.storeState.store;
+        var graph = $scope.storeState.graph;
         var data = [];
 
         var resultsD = new $.Deferred();
-        var graphD = new $.Deferred();
 
         try {
             store.execute(queryState.queryToString(), function(err, results){
@@ -68,11 +68,7 @@ angular.module('controllers')
             alert(msg + err.toString());
         }
 
-        store.graph(function (err, graph) {
-            graphD.resolve(graph);
-        });
-
-        $.when(resultsD, graphD).done(function(results, graph) {
+        resultsD.done(function(results) {
 
             function parseRecord(sparqlResultsRecord) {
                 var record = {};

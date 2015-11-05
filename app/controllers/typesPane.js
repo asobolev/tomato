@@ -126,13 +126,9 @@ angular.module('controllers')
         $scope.storeState = storeState;
         var pfxs = $scope.storeState.prefixes();
         var store = $scope.storeState.store;
+        var graph = $scope.storeState.graph;
 
         var listClasses = new $.Deferred();
-        var graphD = new $.Deferred();
-
-        store.graph(function (err, graph) {
-            graphD.resolve(graph);
-        });
 
         var queryString = storeState.prefixesAsText() + RDFType.listClasses();
         runSPARQL(queryString, listClasses, function(item) {
@@ -166,7 +162,7 @@ angular.module('controllers')
             return rdfType;
         });
 
-        $.when(listClasses, graphD).done(function(classes, graph) {
+        listClasses.done(function(classes) {
             for (var i = 0; i < classes.length; i++) {
                 var clsName = store.rdf.createNamedNode(store.rdf.resolve(classes[i].getURI()));
 
