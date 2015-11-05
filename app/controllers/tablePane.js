@@ -25,18 +25,6 @@ angular.module('controllers')
     $scope.currentPage = 0;
     $scope.queryBox = { searchText: "" };
 
-    function TableCell(type, value) {
-        this.divUID = Math.random().toString().slice(2);  // random UID
-        this.rdfType = type;  // 'literal' or actual type like 'http://xmlns.com/foaf/0.1/Person'
-        this.value = value;  // '45.5' or 'http://g-node.org/0.1#BrainRegion:1'
-        this.directObjProperties = {}; // {'gnode:isAboutAnimal': 'gnode:Preparation', ...}
-        this.reverseObjProperties = {}; // {'gnode:isAboutAnimal': 'gnode:Preparation', ...}
-
-        this.hasRelations = function() {
-            return Object.keys(this.directObjProperties).length > 0 || Object.keys(this.reverseObjProperties).length > 0;
-        }
-    }
-
     function searchMatch(haystack, needle) {
         if (!needle) {
             return true;
@@ -58,7 +46,6 @@ angular.module('controllers')
 
         $scope.queryState = queryState;
         var store = $scope.storeState.store;
-        var pfxs = $scope.storeState.prefixes();
         var data = [];
 
         var resultsD = new $.Deferred();
@@ -87,42 +74,6 @@ angular.module('controllers')
 
         $.when(resultsD, graphD).done(function(results, graph) {
 
-            function resolveType(URI) {
-                var store = $scope.storeState.store;
-
-                var result = graph.match(
-                    store.rdf.createNamedNode(URI),
-                    store.rdf.createNamedNode(store.rdf.resolve("rdf:type")),
-                    null
-                ).toArray();
-
-                // string like 'http://xmlns.com/foaf/0.1/Person' or null
-                return result.length > 0 ? result[0].object.valueOf() : null;
-            }
-
-            function getProperties(URI, reverse) {
-                var results = {};
-                var relations = graph.match(reverse ? null : URI, null, reverse ? URI : null);
-
-                relations.forEach(function(triple, g) {
-                    if (reverse || triple.object.interfaceName != "Literal") {
-                        var predURI = TomatoUtils.shrink(pfxs, triple.predicate.valueOf());
-
-                        if (!(predURI in results) && (predURI != "rdf:type")) {
-                            var predType = resolveType(
-                                reverse ? triple.subject.valueOf() : triple.object.valueOf()
-                            );
-
-                            if (predType != null) {
-                                results[predURI] = TomatoUtils.shrink(pfxs,predType);
-                            }
-                        }
-                    }
-                });
-
-                return results;
-            }
-
             function parseRecord(sparqlResultsRecord) {
                 var record = {};
                 for (var j = 0; j < $scope.headers.length; j++) {
@@ -146,11 +97,7 @@ angular.module('controllers')
                 }
 
                 // actual RDF Resource
-                var cell = new TableCell(resolveType(item.value), item.value);
-                cell.directObjProperties = getProperties(item.value, false);
-                cell.reverseObjProperties = getProperties(item.value, true);
-
-                return cell;
+                return TableCellFactory.create($scope.storeState.prefixes(), graph, item.value);
             }
 
             if (results.length > 0) {

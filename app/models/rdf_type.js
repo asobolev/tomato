@@ -23,7 +23,9 @@ RDFType.prototype.getURI = function() {
     return this.prefix + ":" + this.name;
 };
 
-/* SPARQL query section */
+
+/* SPARQL queries */
+
 
 RDFType.prototype.directRelsQuery = function() {
     return "SELECT DISTINCT ?pred ?objtype\
@@ -56,7 +58,7 @@ RDFType.prototype.buildSPARQL = function(filters) {  // TODO use SPARQLJS
         var alias = this.dataProperties[i];
         if (alias.indexOf(":") > -1) {
             var parts = alias.split(":");
-            
+
             if (aliases.indexOf(parts[1]) > -1) {
                 alias = parts[0] + "_" + parts[1];
             } else {
@@ -104,58 +106,4 @@ RDFType.prototype.listObjProperties = function() {
                 ?id ?pred ?val .\
                 FILTER (!isliteral(?val)) .\
             } ORDER BY ?pred";
-};
-
-
-/**
- * Class that represents a Resource item in the RDF types tree
- *
- */
-function ResourceItem(predicate, rdfType, reverse) {
-
-    var badge = '<span class="badge">' + rdfType.qty + '</span>\t ';
-    var arrow = '<span class="glyphicon glyphicon-arrow-' + (reverse ? "left" : "right") + '" aria-hidden="true"></span>';
-    var pre = predicate == null ? "" : '<small>' + predicate.split(":")[0] + ':</small>' + predicate.split(":")[1];
-    var post = '<small>' + rdfType.prefix + ':</small>' + rdfType.name;
-
-    this.key = rdfType.getURI();
-    this.title = "<div>" + badge + (pre == "" ? "" : pre + " " + arrow + " ") + post + "</div>";
-    this.folder = true;
-    this.lazy = true;
-    this.extraClasses = "resourceItem";
-}
-
-
-/**
- * Class that represents a Predicate item in the RDF types tree
- *
- */
-function PredicateItem(predicate) {
-
-    this.key = predicate;
-    this.title = '<small>' + predicate.split(":")[0] + ':</small>' + predicate.split(":")[1];
-    this.folder = false;
-    this.lazy = false;
-    this.extraClasses = "predicateItem";
-}
-
-
-/**
- * Static class with common utility functions.
- */
-function TomatoUtils() {}
-
-TomatoUtils.split = function(prefixes, URI) {
-    for (var pfx in prefixes) {
-        if (URI.indexOf(prefixes[pfx]) == 0) {
-            return [pfx, URI.slice(prefixes[pfx].length)]
-        }
-    }
-
-    return ["", URI];
-};
-
-TomatoUtils.shrink = function(prefixes, URI) {
-    var both = TomatoUtils.split(prefixes, URI);
-    return both[0] + ":" + both[1];
 };
