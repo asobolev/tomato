@@ -124,6 +124,7 @@ angular.module('controllers')
         info.update("Building classes tree..");
 
         $scope.storeState = storeState;
+        var pfxs = $scope.storeState.prefixes();
         var store = $scope.storeState.store;
 
         var listClasses = new $.Deferred();
@@ -135,7 +136,7 @@ angular.module('controllers')
 
         var queryString = storeState.prefixesAsText() + RDFType.listClasses();
         runSPARQL(queryString, listClasses, function(item) {
-            var parts = TomatoUtils.shrink(storeState.prefixes(), item['class'].value).split(":");
+            var parts = TomatoUtils.shrink(pfxs, item['class'].value).split(":");
 
             var rdfType = new RDFType(parts[0], parts[1], 0, []);
 
@@ -166,12 +167,10 @@ angular.module('controllers')
         });
 
         $.when(listClasses, graphD).done(function(classes, graph) {
-            var typeNode = store.rdf.createNamedNode(store.rdf.resolve("rdf:type"));
-
             for (var i = 0; i < classes.length; i++) {
                 var clsName = store.rdf.createNamedNode(store.rdf.resolve(classes[i].getURI()));
 
-                classes[i].qty = graph.match(null, typeNode, clsName).toArray().length;
+                classes[i].qty = graph.match(null, CONST.RDF_TYPE, clsName).toArray().length;
             }
 
             types.update(classes);
