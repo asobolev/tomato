@@ -1,7 +1,7 @@
-angular.module('controllers')
+var CONST = require('../components/consts');
+var TomatoUtils = require('../components/utils');
 
-.controller('TypesPane', ['$scope', '$filter', 'store', 'query', 'types', 'info',
-        function($scope, $filter, store, query, types, info) {
+module.exports = function($scope, $filter, store, query, types, info) {
 
     function searchMatch(haystack, needle) {
         if (!needle) {
@@ -227,4 +227,4 @@ angular.module('controllers')
 
         return dfd.promise();
     }
-}]);
+};

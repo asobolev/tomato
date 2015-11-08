@@ -1,6 +1,4 @@
-angular.module('services')
-
-.factory('query', function ($rootScope) {
+module.exports = function ($rootScope) {
 
     function QueryState(prefixes, body) {
         this.prefixes = prefixes;
@@ -30,4 +28,4 @@ angular.module('services')
         update: update,
         query: query
     };
-});
+};

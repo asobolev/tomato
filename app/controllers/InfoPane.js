@@ -1,6 +1,4 @@
-angular.module('controllers')
-
-.controller('InfoPane', ['$scope', '$rootScope', 'info', function($scope, $rootScope, info) {
+module.exports = function($scope, info) {
 
     $scope.infoString = "No data loaded. Select the data source first.";
 
@@ -9,4 +7,4 @@ angular.module('controllers')
         $scope.$apply();
     });
 
-}]);
+};

@@ -29,3 +29,7 @@ function PredicateItem(predicate) {
     this.lazy = false;
     this.extraClasses = "predicateItem";
 }
+
+
+module.exports.ResourceItem = ResourceItem;
+module.exports.PredicateItem = PredicateItem;

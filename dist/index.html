@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" ng-app="Tomato" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" ng-app="Tomato" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" ng-app="Tomato" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" ng-app="Tomato" class="no-js"> <!--<![endif]-->
+<!--[if lt IE 7]>      <html lang="en" ng-app="tomato" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="tomato" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="tomato" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="tomato" class="no-js"> <!--<![endif]-->
 <head>
   <meta charset="utf-8">
 
@@ -15,13 +15,11 @@
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link rel="stylesheet" href="../node_modules/jquery.fancytree/dist/skin-win8/ui.fancytree.min.css">
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
-  <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/main.css">
+  <link rel="stylesheet" href="bower/fancytree/dist/skin-win8/ui.fancytree.min.css">
+  <link rel="stylesheet" href="bower/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="bower/html5-boilerplate/dist/css/normalize.css">
+  <link rel="stylesheet" href="bower/html5-boilerplate/dist/css/main.css">
   <link rel="stylesheet" href="css/app.css">
-
-  <script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
 </head>
 
 
@@ -31,7 +29,7 @@
   <!-- FILE SELECTION -->
 
 
-  <div class="col-md-12" ng-controller="FileParser">
+  <div class="col-md-12" ng-controller="FilesPane">
     <div class="input-group">
         <span class="input-group-btn">
           <button class="btn btn-default" type="button" onclick="document.getElementById('fileInput').click();">Select from disk..</button>
@@ -211,7 +209,7 @@
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
-  -->
+
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
 
@@ -222,25 +220,34 @@
   <script src="../node_modules/rdfstore/node_modules/n3/browser/n3-browser.js"></script>
   <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
-  <script src="app.js"></script>
-  <script src="models/rdf_type.js"></script>
-  <script src="models/tree_item.js"></script>
-  <script src="models/table_cell.js"></script>
-  <script src="filters.js"></script>
-  <script src="services/info.js"></script>
-  <script src="services/store.js"></script>
-  <script src="services/query.js"></script>
-  <script src="services/types.js"></script>
-  <script src="controllers/filesPane.js"></script>
-  <script src="controllers/infoPane.js"></script>
-  <script src="controllers/typesPane.js"></script>
-  <script src="controllers/queryPane.js"></script>
-  <script src="controllers/historyPane.js"></script>
-  <script src="controllers/tablePane.js"></script>
-  <script src="components/utils.js"></script>
-  <script src="components/consts.js"></script>
-  <script src="components/version/version.js"></script>
-  <script src="components/version/version-directive.js"></script>
-  <script src="components/version/interpolate-filter.js"></script>
+  <script src="../app/app.js"></script>
+  <script src="../app/models/rdf_type.js"></script>
+  <script src="../app/models/tree_item.js"></script>
+  <script src="../app/models/table_cell.js"></script>
+  <script src="../app/filters.js"></script>
+  <script src="../app/services/info.js"></script>
+  <script src="../app/services/store.js"></script>
+  <script src="../app/services/query.js"></script>
+  <script src="../app/services/types.js"></script>
+  <script src="../app/controllers/filesPane.js"></script>
+  <script src="../app/controllers/infoPane.js"></script>
+  <script src="../app/controllers/typesPane.js"></script>
+  <script src="../app/controllers/queryPane.js"></script>
+  <script src="../app/controllers/historyPane.js"></script>
+  <script src="../app/controllers/tablePane.js"></script>
+  <script src="../app/components/utils.js"></script>
+  <script src="../app/components/consts.js"></script>
+
+  <script src="../app/components/version/version.js"></script>
+  <script src="../app/components/version/version-directive.js"></script>
+  <script src="../app/components/version/interpolate-filter.js"></script>
+    -->
+
+  <script src="bower/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="bower/jquery/dist/jquery.min.js"></script>
+  <script src="bower/jquery-ui/jquery-ui.min.js"></script>
+  <script src="bower/fancytree/dist/jquery.fancytree-all.min.js"></script>
+
+  <script src="js/main.js"></script>
 </body>
 </html>

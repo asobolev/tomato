@@ -1,9 +1,6 @@
-angular.module('controllers')
+module.exports = function($scope, $rootScope, store, info) {
 
-.controller('FileParser', ['$scope', '$rootScope', 'store', 'info',
-    function($scope, $rootScope, store, info) {
-
-    $scope.location = "";
+    $scope.location = "foo";
 
     $scope.handleFileSelect = function(evt) {
         var files = evt.target.files; // FileList object
@@ -42,4 +39,4 @@ angular.module('controllers')
     };
 
     document.getElementById('fileInput').addEventListener('change', $scope.handleFileSelect, false);
-}]);
+};

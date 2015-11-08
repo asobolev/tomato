@@ -1,7 +1,11 @@
-angular.module('controllers')
+var TomatoUtils = require('../components/utils');
+var models = require('../models/TableCell');
 
-.controller('TablePane', ['$scope', '$filter', 'store', 'query', 'types', 'info',
-        function($scope, $filter, store, query, types, info) {
+var TableCellFactory = models.TableCellFactory;
+var TableCell = models.TableCell;
+
+
+module.exports = function($scope, $filter, store, query, types, info) {
 
     /* shared services (states) */
 
@@ -211,4 +215,4 @@ angular.module('controllers')
 
         $scope.sortingOrder = newSortingOrder;
     };
-}]);
+};

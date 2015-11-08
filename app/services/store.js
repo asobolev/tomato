@@ -1,6 +1,7 @@
-angular.module('services')
+var N3 = require('n3');
+var rdfstore = require('rdfstore');
 
-.factory('store', function ($rootScope) {
+module.exports = function ($rootScope) {
 
     var storeState = {
         _prefixes: {},
@@ -62,4 +63,4 @@ angular.module('services')
         update: update,
         store: storeState
     };
-});
+};

@@ -1,6 +1,4 @@
-angular.module('services')
-
-.factory('types', function ($rootScope) {
+module.exports = function ($rootScope) {
 
     var typesState = {
         types: [],  // available RDFType(s) in the actual store
@@ -23,4 +21,4 @@ angular.module('services')
         update: update,
         types: typesState
     };
-});
+};

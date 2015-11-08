@@ -19,3 +19,6 @@ CONST.RDF_PLAIN_LITERAL = CONST.RDF + 'PlainLiteral';
 CONST.RDF_XML_LITERAL = CONST.RDF + 'XMLLiteral';
 CONST.RDF_OBJECT = CONST.RDF + 'object';
 CONST.RDF_LANGSTRING = CONST.RDF + 'langString';
+
+
+module.exports = CONST;

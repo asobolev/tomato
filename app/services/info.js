@@ -1,6 +1,4 @@
-angular.module('services')
-
-.factory('info', function ($rootScope) {
+module.exports = function ($rootScope) {
 
     var infoString = "";
 
@@ -19,4 +17,4 @@ angular.module('services')
         clear: clear,
         info: infoString
     };
-});
+};

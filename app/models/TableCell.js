@@ -1,3 +1,7 @@
+var CONST = require('../components/consts');
+var TomatoUtils = require('../components/utils');
+
+
 /**
  * Class that represents single cell of the query results table
  *
@@ -73,4 +77,5 @@ TableCellFactory.create = function(pfxs, graph, resourceURI) {
 };
 
 
-
+module.exports.TableCell = TableCell;
+module.exports.TableCellFactory = TableCellFactory;

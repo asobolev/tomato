@@ -1,7 +1,4 @@
-angular.module('controllers')
-
-.controller('HistoryPane', ['$scope', 'query',
-    function($scope, query) {
+module.exports = function($scope, query) {
 
     function HistoryItem(prefixes, body) {
         this.timestamp = new Date();
@@ -25,4 +22,4 @@ angular.module('controllers')
 
         query.update(historyItem.prefixes, historyItem.body);
     };
-}]);
+};

@@ -107,3 +107,6 @@ RDFType.prototype.listObjProperties = function() {
                 FILTER (!isliteral(?val)) .\
             } ORDER BY ?pred";
 };
+
+
+module.exports = RDFType;

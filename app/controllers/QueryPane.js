@@ -1,6 +1,4 @@
-angular.module('controllers')
-
-.controller('QueryPane', ['$scope', 'query', function($scope, query) {
+module.exports = function($scope, query) {
 
     $scope.query = query;
     $scope.prefixesText = "";
@@ -15,4 +13,4 @@ angular.module('controllers')
     $scope.execute = function() {
         query.update($scope.prefixesText, $scope.bodyText);
     }
-}]);
+};
