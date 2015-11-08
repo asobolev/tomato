@@ -1,0 +1,95 @@
+/* app css stylesheet */
+
+.menu {
+  list-style: none;
+  border-bottom: 0.1em solid black;
+  margin-bottom: 2em;
+  padding: 0 0 0.5em;
+}
+
+.menu:before {
+  content: "[";
+}
+
+.menu:after {
+  content: "]";
+}
+
+.menu > li {
+  display: inline;
+}
+
+.menu > li:before {
+  content: "|";
+  padding-right: 0.3em;
+}
+
+.menu > li:nth-child(1):before {
+  content: "";
+  padding: 0;
+}
+
+/* ----------------- */
+
+#query-group {
+  display: block;
+}
+
+.starter-template {
+  text-align: center;
+}
+
+.separate-block {
+  height: 50%;
+  max-height: 50%;
+  overflow-x: auto;
+  overflow-y: auto;
+  padding: 10px 0 10px 0;
+
+}
+
+.pagination {
+  margin: 0;
+}
+
+#rdf_file {
+  width: 100%;
+}
+
+.btn-xs {
+  margin-right: 5px;
+}
+
+
+.btn-group {
+  display: flex;
+}
+
+
+#typesTree, #history-pane {
+  height: 380px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+
+span.fancytree-node {
+  min-height: 27px;
+}
+
+span.fancytree-node.resourceItem > span.fancytree-title {
+  vertical-align: middle;
+  font-size: 14px;
+  color: #555;
+}
+
+span.fancytree-node.predicateItem > span.fancytree-title {
+  vertical-align: middle;
+  font-size: 14px;
+  color: #555;
+  pointer-events:none;
+}
+
+ul.fancytree-container {
+  border: none;
+}

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="tomato" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="tomato" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="tomato" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="tomato" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+
+  <title>Tomato: RDF data viewer</title>
+
+  <link rel="shortcut icon" href="img/favicon.ico" />
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="bower/fancytree/dist/skin-win8/ui.fancytree.min.css">
+  <link rel="stylesheet" href="bower/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="bower/html5-boilerplate/dist/css/normalize.css">
+  <link rel="stylesheet" href="bower/html5-boilerplate/dist/css/main.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+
+
+<body>
+
+
+  <!-- FILE SELECTION -->
+
+
+  <div class="col-md-12" ng-controller="FilesPane">
+    <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button" onclick="document.getElementById('fileInput').click();">Select from disk..</button>
+        </span>
+        <input id="textInput" type="text" class="form-control"
+               ng-model="location" placeholder="Select a file or enter a remote location...">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button" ng-click="loadFromWeb()">Load</button>
+        </span>
+    </div><!-- /input-group -->
+
+    <input id="fileInput" type="file" style="visibility:hidden" />
+  </div>
+
+
+  <!-- INFO PANE -->
+
+
+  <div class="col-md-12" ng-controller="InfoPane">
+    <div class="text-center"><p ng-bind="infoString"></p></div>
+  </div>
+
+  <div ng-if="!$root.loaded" class="col-md-12 starter-template">
+    <h2>Tomato: RDF data viewer</h2>
+  </div>
+
+  <!-- TYPES PANE -->
+
+
+  <div ng-if="$root.loaded">
+
+  <div class="col-md-4" ng-controller="TypesPane">
+    <div id="typesTree"></div>
+  </div>
+
+
+  <!-- QUERY PANE -->
+
+
+  <div class="col-md-4" ng-controller="QueryPane">
+    <div class="input-group" id="query-group">
+      <textarea ng-model="prefixesText"
+                placeholder="Select an item in the tree to update PREFIXes.."
+                class="form-control custom-control"
+                rows="5"
+                style="resize:none">
+      </textarea>
+      <textarea ng-model="bodyText"
+                placeholder="Select an item in the tree to update SPARQL.."
+                class="form-control custom-control"
+                rows="10"
+                style="resize:none">
+      </textarea>
+      <button class="btn btn-default" type="button" id="queryBtn" ng-click="execute()">Execute</button>
+    </div>
+  </div>
+
+
+  <!-- HISTORY PANE -->
+
+
+  <div class="col-md-4" id="history-pane" ng-controller="HistoryPane">
+    <ul class="list-group" id="history-items">
+      <a href="#" class="list-group-item"
+         ng-repeat="item in history"
+         ng-click="select(item)"
+         title="{{ item.body }}">
+        <span class="label label-info">{{ item.timestamp.toLocaleString() }}</span>
+        {{ item.body | limitTo:45 }}
+      </a>
+    </ul>
+  </div>
+
+
+  <!-- TABLE PANE -->
+
+
+  <div class="col-md-12">
+    <hr>
+  </div>
+
+  <div ng-controller="TablePane">
+
+    <!-- Search box -->
+
+    <div class="col-md-12" ng-if="headers.length > 0">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Go!</button>
+        </span>
+        <input type="text" ng-model="queryBox.searchText" ng-change="search()" class="form-control" placeholder="Filter by...">
+      </div>
+    </div>
+
+    <!-- Pagination items - enable if needed -->
+
+    <!--
+    <div class="col-md-6" ng-if="headers.length > 0">
+      <ul class="pagination">
+        <li ng-class="{disabled: currentPage == 0}">
+          <a href ng-click="prevPage()">«</a>
+        </li>
+        <li ng-repeat="n in range(pagedItems.length)"
+            ng-class="{active: n == currentPage}"
+            ng-click="setPage()">
+          <a href ng-bind="n + 1">1</a>
+        </li>
+        <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
+          <a href ng-click="nextPage()">»</a>
+        </li>
+      </ul>
+    </div>
+    -->
+
+    <!-- Table with data -->
+
+    <div class="col-md-12 separate-block" ng-if="headers.length > 0">
+
+      <table class="table table-bordered table-hover">
+        <thead><tr>
+          <th ng-repeat="colName in headers">
+            <div  style="display: flex;">
+            {{ colName }}
+            <a href="#" ng-click="sort_by(colName)">
+              <span class="glyphicon glyphicon-sort" aria-hidden="true"></span>
+            </a>
+            </div>
+          </th>
+        </tr></thead>
+
+        <tbody>
+
+          <!-- paginated version -->
+          <!--
+          <tr ng-repeat="row in pagedItems[currentPage] | orderByColumn:sortingOrder:reverse">
+          -->
+          <tr ng-repeat="row in filteredItems | orderByColumn:sortingOrder:reverse">
+            <td ng-repeat="(key, cell) in row">
+
+              <div ng-if="cell.rdfType != 'literal'" class="btn-group dropup">
+                <button type="button" class="btn btn-default"
+                        ng-click="selectURI(cell)"
+                        title="{{ cell.value }}">
+                  {{ cell.value | asShortURI }}
+                </button>
+                <button class="btn btn-default dropdown-toggle"
+                        ng-if="cell.hasRelations()"
+                        type="button"
+                        id="{{ cell.divUID }}"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span class="caret"></span>
+                  <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="{{ cell.divUID }}">
+                  <li ng-repeat="(prop, type) in cell.reverseObjProperties">
+                    <a href="#" ng-click="selectReverseProperty(cell, prop)">{{ type }}->{{ prop }}</a>
+                  </li>
+                  <li ng-repeat="(prop, type) in cell.directObjProperties">
+                    <a href="#" ng-click="selectDirectProperty(cell, prop)">{{ type }}<-{{ prop }}</a>
+                  </li>
+                </ul>
+              </div>
+
+              <div ng-if="cell.rdfType == 'literal'"
+                      title="{{ cell.value }}">
+                {{ cell.value | asShortValue }}
+              </div>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  </div>
+
+  <!-- In production use:
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
+
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/angular-route/angular-route.js"></script>
+
+  <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="../node_modules/jquery-ui-browserify/dist/jquery-ui.min.js"></script>
+  <script src="../node_modules/jquery.fancytree/dist/jquery.fancytree-all.min.js"></script>
+  <script src="../node_modules/rdfstore/dist/rdfstore.js"></script>
+  <script src="../node_modules/rdfstore/node_modules/n3/browser/n3-browser.js"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+  <script src="../app/app.js"></script>
+  <script src="../app/models/rdf_type.js"></script>
+  <script src="../app/models/tree_item.js"></script>
+  <script src="../app/models/table_cell.js"></script>
+  <script src="../app/filters.js"></script>
+  <script src="../app/services/info.js"></script>
+  <script src="../app/services/store.js"></script>
+  <script src="../app/services/query.js"></script>
+  <script src="../app/services/types.js"></script>
+  <script src="../app/controllers/filesPane.js"></script>
+  <script src="../app/controllers/infoPane.js"></script>
+  <script src="../app/controllers/typesPane.js"></script>
+  <script src="../app/controllers/queryPane.js"></script>
+  <script src="../app/controllers/historyPane.js"></script>
+  <script src="../app/controllers/tablePane.js"></script>
+  <script src="../app/components/utils.js"></script>
+  <script src="../app/components/consts.js"></script>
+
+  <script src="../app/components/version/version.js"></script>
+  <script src="../app/components/version/version-directive.js"></script>
+  <script src="../app/components/version/interpolate-filter.js"></script>
+    -->
+
+  <script src="bower/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="bower/jquery/dist/jquery.min.js"></script>
+  <script src="bower/jquery-ui/jquery-ui.min.js"></script>
+  <script src="bower/fancytree/dist/jquery.fancytree-all.min.js"></script>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
