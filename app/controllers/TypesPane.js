@@ -1,3 +1,12 @@
+var $ = require('jquery');
+var UI = require('jquery-ui-browserify');
+var FT = require('jquery.fancytree/dist/jquery.fancytree');
+
+var RDFType = require('../models/RDFType');
+var treeItems = require('../models/TreeItem');
+var ResourceItem = treeItems.ResourceItem;
+var PredicateItem = treeItems.PredicateItem;
+
 var CONST = require('../components/consts');
 var TomatoUtils = require('../components/utils');
 
@@ -32,7 +41,6 @@ module.exports = function($scope, $filter, store, query, types, info) {
     $scope.queryBox = { searchText: "" };
     $scope.tree = {
         checkbox: false,
-        extensions: ["filter"],
         quicksearch: true,
         icons: false, // Display node icons
         filter: {

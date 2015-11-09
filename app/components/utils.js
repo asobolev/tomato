@@ -17,3 +17,5 @@ TomatoUtils.shrink = function(prefixes, URI) {
     var both = TomatoUtils.split(prefixes, URI);
     return both[0] + ":" + both[1];
 };
+
+module.exports = TomatoUtils;

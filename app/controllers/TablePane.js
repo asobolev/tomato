@@ -52,8 +52,6 @@ module.exports = function($scope, $filter, store, query, types, info) {
         $scope.queryState = queryState;
         var store = $scope.storeState.store;
         var graph = $scope.storeState.graph;
-        var data = [];
-
         var resultsD = new $.Deferred();
 
         try {
@@ -75,12 +73,12 @@ module.exports = function($scope, $filter, store, query, types, info) {
 
         resultsD.done(function(results) {
 
-            function parseRecord(sparqlResultsRecord) {
+            function parseRecord(headers, sparqlResultsRecord) {
                 var record = {};
-                for (var j = 0; j < $scope.headers.length; j++) {
-                    var item = sparqlResultsRecord[$scope.headers[j]];
+                for (var j = 0; j < headers.length; j++) {
+                    var item = sparqlResultsRecord[headers[j]];
 
-                    record[$scope.headers[j]] = parseCell(item);
+                    record[headers[j]] = parseCell(item);
                 }
 
                 return record;
@@ -101,18 +99,22 @@ module.exports = function($scope, $filter, store, query, types, info) {
                 return TableCellFactory.create($scope.storeState.prefixes(), graph, item.value);
             }
 
+            var headers = Object.keys(results[0]);
+
+            var parsed = [];
+            for (var i = 0; i < results.length; i++) {
+                parsed.push(parseRecord(headers, results[i]));
+            }
+
+            $scope.records = parsed;
+            $scope.search();
+
             if (results.length > 0) {
                 $scope.headers = Object.keys(results[0]);
                 $scope.sortingOrder = $scope.headers[0];
             }
 
-            for (var i = 0; i < results.length; i++) {
-                data.push(parseRecord(results[i]));
-            }
-
-            $scope.records = data;
             info.update("Ready for requests.");
-            $scope.search();
             $scope.$apply();
         });
     });
@@ -166,7 +168,7 @@ module.exports = function($scope, $filter, store, query, types, info) {
 
         $scope.filteredItems = $filter('filter')($scope.records, matchRecord);
         $scope.currentPage = 0;
-        $scope.groupToPages();
+        //$scope.groupToPages();
     };
 
     $scope.groupToPages = function () {

@@ -16,7 +16,7 @@ var orderByColumn = function(){
         if (!(Array.isArray(items))) return items;
 
         var filtered = [];
-        angular.forEach(items, function(item) {
+        items.forEach(function(item) {
             filtered.push(item);
         });
 
