@@ -87,7 +87,7 @@ module.exports = TomatoUtils;
 },{}],4:[function(require,module,exports){
 module.exports = function($scope, $rootScope, store, info) {
 
-    $scope.location = "foo";
+    $scope.location = "";
 
     $scope.handleFileSelect = function(evt) {
         var files = evt.target.files; // FileList object
@@ -160,7 +160,6 @@ module.exports = function($scope, info) {
 
     $scope.$on('info.update', function(event, message) {
         $scope.infoString = message;
-        $scope.$apply();
     });
 
 };
