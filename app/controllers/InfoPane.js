@@ -4,7 +4,6 @@ module.exports = function($scope, info) {
 
     $scope.$on('info.update', function(event, message) {
         $scope.infoString = message;
-        $scope.$apply();
     });
 
 };

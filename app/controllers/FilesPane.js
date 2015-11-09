@@ -1,6 +1,6 @@
 module.exports = function($scope, $rootScope, store, info) {
 
-    $scope.location = "foo";
+    $scope.location = "";
 
     $scope.handleFileSelect = function(evt) {
         var files = evt.target.files; // FileList object
