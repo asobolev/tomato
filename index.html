@@ -27,19 +27,23 @@
   <!-- FILE SELECTION -->
 
 
-  <div class="col-md-12" ng-controller="FilesPane">
+  <div class="col-md-8" ng-controller="FilesPane">
     <div class="input-group">
         <span class="input-group-btn">
           <button class="btn btn-default" type="button" onclick="document.getElementById('fileInput').click();">Select from disk..</button>
         </span>
         <input id="textInput" type="text" class="form-control"
-               ng-model="location" placeholder="Select a file or enter a remote location...">
+               ng-model="location" placeholder="Select a file (.ttl) or enter a remote location...">
         <span class="input-group-btn">
           <button class="btn btn-default" type="button" ng-click="loadFromWeb()">Load</button>
         </span>
     </div><!-- /input-group -->
 
     <input id="fileInput" type="file" style="visibility:hidden" />
+  </div>
+
+  <div class="col-md-4">
+    <a href="examples/foaf.ttl" class="btn btn-block btn-default" role="button">Download example FOAF file (.ttl)</a>
   </div>
 
 
